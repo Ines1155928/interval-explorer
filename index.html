@@ -56,6 +56,35 @@
   .train-endpoint.unknown{background:#fff;color:#688;border:3px dashed #b9c5cf}
   .train-route .next{border-color:#2fb8c7;box-shadow:0 0 0 5px #2fb8c744,0 6px 0 #00000018}
   .train-direction{padding:8px 13px;border-radius:999px;background:#e9fbf6;color:#176457;font-size:13px;font-weight:900}
+  #explore-view{grid-template-columns:minmax(0,1fr);gap:0}
+  .explore-result{order:0;padding:22px 26px 25px;border-top:4px solid #dbe98d;background:linear-gradient(180deg,#f7fce7,#fff 90%)}
+  .explore-bridge{justify-self:center;margin:7px 0;padding:6px 14px;border-radius:99px;background:#e6f4b0;color:#536b19;font-size:12px;font-weight:900}
+  .explore-result-head{display:flex;align-items:end;justify-content:space-between;gap:14px}
+  .explore-result-head h2{margin:6px 0 0;font-size:23px}
+  .explore-result-head>p{margin:0;color:#58705d;font-size:13px;font-weight:800}
+  .count-flow{display:grid;grid-template-columns:minmax(0,1fr) 160px;gap:17px;align-items:stretch;margin-top:16px}
+  .count-route,.count-answer{border:1px solid #e2e9d3;border-radius:18px;background:#fff}
+  .count-route{min-width:0;padding:17px 19px}
+  .count-label{margin:0 0 5px;color:#678027;font-size:11px;font-weight:900;letter-spacing:.04em}
+  .count-route .pair{margin:0 0 13px;text-align:left;color:var(--ink);font-size:18px;font-weight:900}
+  .count-route .path{justify-content:flex-start;gap:9px 17px;padding:0;border:0}
+  .count-route .chip{position:relative;display:grid;grid-template-columns:auto auto;column-gap:6px;align-items:center;min-width:76px;padding:9px 10px;border:1px solid #e5e2ec;background:#f7f5fa;color:var(--ink);font-size:14px}
+  .count-route .chip span{width:22px;height:22px;font-size:11px}
+  .count-route .chip small{grid-column:1/-1;margin-top:4px;color:var(--muted);font-size:10px;font-weight:800;text-align:center}
+  .count-route .chip.start{border-color:#c8b6ef;background:#f2ecff;color:var(--dark)}
+  .count-route .chip.end{border-color:#f5b5a9;background:#fff0ec;color:#a84439}
+  .count-route .chip.end span{background:var(--coral)}
+  .count-route .chip.both{border-color:#c8b6ef;background:linear-gradient(110deg,#f2ecff 50%,#fff0ec 50%)}
+  .count-route .chip.both span{background:linear-gradient(110deg,var(--purple) 50%,var(--coral) 50%)}
+  .count-answer{display:grid;place-content:center;padding:12px;text-align:center;background:#f8fbe8}
+  .count-answer>span{color:#587029;font-size:12px;font-weight:900}
+  .count-answer .circle{width:112px;height:112px;margin:8px auto 0;border-width:8px;box-shadow:none}
+  .count-answer .circle b{font-size:45px}
+  .explore-result .tip{margin-top:13px;padding:10px 13px}
+  .explore-result .tip p{font-size:13px}
+  .explore-result .tip p b{font-size:13px}
+  @media(max-width:760px){.explore-result-head{align-items:flex-start;flex-direction:column}.count-flow{grid-template-columns:1fr}.count-answer{display:flex;align-items:center;justify-content:center;gap:18px}.count-answer .circle{width:85px;height:85px;margin:0;border-width:6px}.count-answer .circle b{font-size:35px}.count-answer .circle span{font-size:12px}}
+  @media(max-width:540px){.explore-result{padding:20px}.count-route{padding:14px}.count-route .path{gap:7px}.count-route .chip{min-width:68px;padding:7px;font-size:12px}.explore-result-head h2{font-size:20px}}
 </style><style>.answer-group{margin-top:16px;padding-top:13px;border-top:1px dashed #ddd9e3}.answer-group h3{margin:0 0 8px;color:var(--muted);font-size:14px}.answer-group .answers{padding-top:0;border-top:0}.answer-group .degree-answers{grid-template-columns:repeat(8,1fr)}.compare-staves{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 0 14px}.interval-panel{padding:13px;border:1px solid var(--line);border-radius:16px;background:#fbfafd}.interval-panel.harmony-panel{background:#fff9f7;border-color:#f4ded9}.interval-title{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--dark);font-size:14px;font-weight:900}.interval-title span:last-child{color:var(--muted);font-size:11px;font-weight:800}.harmony-panel .interval-title{color:#b64d43}.interval-panel .staff{height:142px;margin:10px 0 0}.interval-panel .arrow{display:none}.interval-listen{width:100%;margin:10px 0 0;border:0;border-radius:11px;background:var(--purple);color:#fff;padding:10px 12px;font-size:12px;font-weight:900}.harmony-panel .interval-listen{background:var(--coral)}.interval-listen:hover{filter:brightness(.94)}.train-next,#quiz-view #next{display:none!important}@media(max-width:640px){.compare-staves{grid-template-columns:1fr}}@media(max-width:540px){.answer-group .degree-answers{grid-template-columns:repeat(4,1fr)}}</style></head>
 <body>
   <header class="topbar"><button class="brand" id="home"><span class="mark">♪</span><span>音程探險家</span></button><div class="mission"><span id="mission-label">今天的任務</span><b id="mission-value">認識「度」</b></div></header>
@@ -63,7 +92,12 @@
   <section class="story-strip" aria-label="任務選擇"><button class="story-card" id="story-explore"><span class="story-icon">♩</span><span><b>音符階梯練習場</b><small>自由選音，觀察音符的距離</small></span><span class="story-go">→</span></button><button class="story-card" id="story-train"><span class="story-icon">🚂</span><span><b>音階小火車</b><small>慢慢接對音符車廂，再數音程</small></span><span class="story-go">→</span></button><button class="story-card" id="story-quiz"><span class="story-icon">★</span><span><b>音樂祭舞台挑戰</b><small>完成 5 題任務，點亮整座舞台</small></span><span class="story-go">→</span></button><button class="story-card" id="story-shooter"><span class="story-icon">⚡</span><span><b>音程射手</b><small>60 秒射擊正確音符，挑戰連擊</small></span><span class="story-go">→</span></button></section>
   <section class="workspace" id="explore-view">
     <div class="card"><div class="heading"><div><span class="tag">STEP 1</span><h2>選擇兩個音符</h2></div></div><div class="compare-staves"><section class="interval-panel"><div class="interval-title"><span>曲調音程</span><span>先後播放</span></div><div id="explore-melody"></div><button class="interval-listen" id="play-melody">▶ 播放曲調音程</button></section><section class="interval-panel harmony-panel"><div class="interval-title"><span>和聲音程</span><span>同時播放</span></div><div id="explore-harmony"></div><button class="interval-listen" id="play-harmony">▶ 播放和聲音程</button></section></div><div class="pickers"><fieldset><legend><span>1</span>第一個音</legend><div class="notes" id="first-notes"></div></fieldset><fieldset><legend><span>2</span>第二個音</legend><div class="notes" id="second-notes"></div></fieldset></div></div>
-    <aside class="card result" aria-live="polite"><span class="tag lime">STEP 2</span><h2>一起數音程</h2><div class="circle"><b id="degree">5</b><span>度</span></div><p class="pair" id="pair">Do → Sol</p><div class="path" id="path"></div><div class="tip"><span>💡</span><p><b>數音名，不是數空格</b><br><span id="explain"></span></p></div><div class="definition"><b>小祕訣</b><p>「度」就像音符之間的距離尺。數字越大，通常聽起來也越遠。</p></div></aside>
+    <div class="explore-bridge" aria-hidden="true">↓ 接著一起數</div>
+    <aside class="card result explore-result" aria-live="polite">
+      <div class="explore-result-head"><div><span class="tag lime">STEP 2</span><h2>一起數音程</h2></div><p>從第一個音數到第二個音，起點和終點都要算。</p></div>
+      <div class="count-flow"><div class="count-route"><p class="count-label">依照音階順序，逐個數音名</p><p class="pair" id="pair">Do → Sol</p><div class="path" id="path"></div></div><div class="count-answer"><span>所以是</span><div class="circle"><b id="degree">5</b><span>度</span></div></div></div>
+      <div class="tip"><span>💡</span><p><b>數音名，不是數空格：</b> <span id="explain"></span></p></div>
+    </aside>
   </section>
   <section class="workspace hidden" id="quiz-view"></section>
   <section class="train-shell hidden" id="train-view"></section>
@@ -83,7 +117,23 @@
     function staff(a,b,h,labels){let lines='';for(let i=0;i<5;i++)lines+=`<span class="staff-line" style="bottom:${38+i*14}px"></span>`;const isSecond=h&&Math.abs(a.step-b.step)===1,ax=h?(isSecond?(a.step<b.step?49:53):51):46,bx=h?(isSecond?(b.step<a.step?49:53):51):58,aSide=isSecond&&a.step>b.step?'label-right':'label-left',bSide=isSecond&&b.step<a.step?'label-left':'label-right',one=`<span class="staff-note one ${aSide} ${a.step===-2?'ledger':''}" style="left:${ax}%;bottom:${38+a.step*7}px"><i></i>${labels?`<b>${a.name}</b>`:''}</span>`,two=`<span class="staff-note two ${bSide} ${b.step===-2?'ledger':''}" style="left:${bx}%;bottom:${38+b.step*7}px"><i></i>${labels?`<b>${b.name}</b>`:''}</span>`;return `<div class="staff ${h?'harmony-staff':''} ${isSecond?'harmonic-second':''}"><div class="clef">𝄞</div>${lines}${one}${two}${h?'':'<span class="arrow">→</span>'}</div>`}
     function noteButtons(target,selected,kind,handler){$(target).innerHTML=notes.map((n,i)=>`<button class="${i===selected?'picked '+kind:''}" data-i="${i}" aria-pressed="${i===selected}"><b>${n.name}</b><small>${n.letter}</small></button>`).join('');$(target).querySelectorAll('button').forEach(b=>b.onclick=()=>handler(+b.dataset.i))}
     function renderExplore(){noteButtons('first-notes',first,'first',i=>{first=i;renderExplore()});noteButtons('second-notes',second,'second',i=>{second=i;renderExplore()});$('explore-staff').innerHTML=staff(notes[first],notes[second],isHarmony,true);$('mode-card').className=`mode-card ${isHarmony?'harmony':''}`;$('mode-card').innerHTML=isHarmony?'<span>♬</span><p><b>和聲音程</b>兩個音「同時」發聲，所以樂譜會上下對齊排列。</p>':'<span>♩</span><p><b>曲調音程</b>兩個音「先後」出現，就像旋律向前走。</p>';const degree=Math.abs(second-first)+1,dir=first<=second?1:-1,path=Array.from({length:degree},(_,i)=>notes[first+i*dir]);$('degree').textContent=degree;$('pair').textContent=`${notes[first].name} → ${notes[second].name}`;$('path').innerHTML=path.map((n,i)=>`<div class="chip"><span>${i+1}</span><b>${n.name}</b></div>`).join('');$('explain').textContent=`從 ${notes[first].name} 數到 ${notes[second].name}，頭尾都包含，剛好是 ${degree} 個音名。`;$('melody').classList.toggle('selected',!isHarmony);$('harmony').classList.toggle('selected',isHarmony);$('play-explore').innerHTML=`▶ 聽聽看 · ${isHarmony?'和聲':'曲調'}音程`}
-    function renderExplore(){noteButtons('first-notes',first,'first',i=>{first=i;renderExplore()});noteButtons('second-notes',second,'second',i=>{second=i;renderExplore()});$('explore-melody').innerHTML=staff(notes[first],notes[second],false,true);$('explore-harmony').innerHTML=staff(notes[first],notes[second],true,true);const degree=Math.abs(second-first)+1,dir=first<=second?1:-1,path=Array.from({length:degree},(_,i)=>notes[first+i*dir]);$('degree').textContent=degree;$('pair').textContent=notes[first].name+' → '+notes[second].name;$('path').innerHTML=path.map((n,i)=>'<div class="chip"><span>'+String(i+1)+'</span><b>'+n.name+'</b></div>').join('');$('explain').textContent='從 '+notes[first].name+' 數到 '+notes[second].name+'，頭尾都包含，剛好是 '+String(degree)+' 個音名。';$('play-melody').onclick=()=>play(notes[first],notes[second],false,'#explore-melody');$('play-harmony').onclick=()=>play(notes[first],notes[second],true,'#explore-harmony')}
+    function renderExplore(){
+      noteButtons('first-notes',first,'first',i=>{first=i;renderExplore()});
+      noteButtons('second-notes',second,'second',i=>{second=i;renderExplore()});
+      $('explore-melody').innerHTML=staff(notes[first],notes[second],false,true);
+      $('explore-harmony').innerHTML=staff(notes[first],notes[second],true,true);
+      const degree=Math.abs(second-first)+1,dir=first<=second?1:-1,path=Array.from({length:degree},(_,i)=>notes[first+i*dir]);
+      $('degree').textContent=degree;
+      $('pair').textContent=notes[first].name+' → '+notes[second].name;
+      $('path').innerHTML=path.map((note,index)=>{
+        const position=degree===1?'both':index===0?'start':index===degree-1?'end':'';
+        const label=degree===1?'起點・終點':index===0?'起點':index===degree-1?'終點':'';
+        return '<div class="chip '+position+'"><span>'+String(index+1)+'</span><b>'+note.name+'</b>'+(label?'<small>'+label+'</small>':'')+'</div>';
+      }).join('');
+      $('explain').textContent='從 '+notes[first].name+' 數到 '+notes[second].name+'，頭尾都包含，剛好是 '+String(degree)+' 個音名。';
+      $('play-melody').onclick=()=>play(notes[first],notes[second],false,'#explore-melody');
+      $('play-harmony').onclick=()=>play(notes[first],notes[second],true,'#explore-harmony');
+    }
     function makeQuizPlan(){const degrees=[2,3,4,5,6,7,8].sort(()=>Math.random()-.5).slice(0,5),types=[false,true,false,true,Math.random()>.5];return degrees.map((degree,index)=>({degree:degree,h:types[index]})).sort(()=>Math.random()-.5)}
     function newQuestion(){const planned=quizPlan[quizQuestionIndex++]||makeQuizPlan()[0],distance=planned.degree-1,start=Math.floor(Math.random()*(8-distance)),up=Math.random()>.5;return{a:up?start:start+distance,b:up?start+distance:start,h:planned.h}}
         function autoplayQuizHarmony(){if(finished)return;const a=notes[question.a],b=notes[question.b],h=question.h;setTimeout(()=>{try{play(a,b,h)}catch(e){}},420);setTimeout(()=>{try{play(a,b,h)}catch(e){}},2000)}
