@@ -53,6 +53,9 @@
 </style><style>
   .train-engine.note-glow,.train-car.note-glow,.train-station.note-glow{filter:brightness(1.2) saturate(1.35);box-shadow:0 0 0 6px #fff59a99,0 0 28px #fff176cc,0 8px 0 #00000024;transform:translateY(-5px) scale(1.045);z-index:4}
   .train-car.final.note-glow,.train-engine.final.note-glow,.train-station.note-glow{box-shadow:0 0 0 7px #fff59acc,0 0 32px #fff176dd,0 8px 0 #8e3f3f66}
+  .train-endpoint.unknown{background:#fff;color:#688;border:3px dashed #b9c5cf}
+  .train-route .next{border-color:#2fb8c7;box-shadow:0 0 0 5px #2fb8c744,0 6px 0 #00000018}
+  .train-direction{padding:8px 13px;border-radius:999px;background:#e9fbf6;color:#176457;font-size:13px;font-weight:900}
 </style><style>.answer-group{margin-top:16px;padding-top:13px;border-top:1px dashed #ddd9e3}.answer-group h3{margin:0 0 8px;color:var(--muted);font-size:14px}.answer-group .answers{padding-top:0;border-top:0}.answer-group .degree-answers{grid-template-columns:repeat(8,1fr)}.compare-staves{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 0 14px}.interval-panel{padding:13px;border:1px solid var(--line);border-radius:16px;background:#fbfafd}.interval-panel.harmony-panel{background:#fff9f7;border-color:#f4ded9}.interval-title{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--dark);font-size:14px;font-weight:900}.interval-title span:last-child{color:var(--muted);font-size:11px;font-weight:800}.harmony-panel .interval-title{color:#b64d43}.interval-panel .staff{height:142px;margin:10px 0 0}.interval-panel .arrow{display:none}.interval-listen{width:100%;margin:10px 0 0;border:0;border-radius:11px;background:var(--purple);color:#fff;padding:10px 12px;font-size:12px;font-weight:900}.harmony-panel .interval-listen{background:var(--coral)}.interval-listen:hover{filter:brightness(.94)}.train-next,#quiz-view #next{display:none!important}@media(max-width:640px){.compare-staves{grid-template-columns:1fr}}@media(max-width:540px){.answer-group .degree-answers{grid-template-columns:repeat(4,1fr)}}</style></head>
 <body>
   <header class="topbar"><button class="brand" id="home"><span class="mark">♪</span><span>音程探險家</span></button><div class="mission"><span id="mission-label">今天的任務</span><b id="mission-value">認識「度」</b></div></header>
@@ -89,12 +92,116 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
     function makeTrainQuestion(){const degree=2+Math.floor(Math.random()*7),distance=degree-1,start=trainDirection==='up'?Math.floor(Math.random()*(8-distance)):distance+Math.floor(Math.random()*(8-distance)),direction=trainDirection==='up'?1:-1,path=Array.from({length:degree},(_,i)=>start+i*direction),choices=new Set(path.slice(1));while(choices.size<Math.min(6,degree+2))choices.add(Math.floor(Math.random()*8));const options=[...choices];for(let i=options.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[options[i],options[j]]=[options[j],options[i]]}return{degree,start,path,options}}
     function startTrain(){trainQuestion=makeTrainQuestion();trainPicked=[];trainStars=0;trainAnswer=null;trainChecked=false;trainMessage='先找下一個音符車廂。';show('train')}
     function trainPiece(note,kind,count,final){const label=note===null?'＋':notes[note].name,small=note===null?'下一節車廂':'已接上',flag=final?'<em class="arrival-label">🚉 終點車站</em>':'';return '<div class="'+kind+'"><b>'+label+'</b><small>'+small+'</small>'+flag+'</div>'}
-    function playTrainComplete(q){const route=[...document.querySelectorAll('#train-view .train-engine,#train-view .train-car,#train-view .train-station')],step=650;route.forEach((el,i)=>{setTimeout(()=>{el.classList.add('note-glow');setTimeout(()=>el.classList.remove('note-glow'),520)},i*step)});const harmonyAt=route.length*step+280;setTimeout(()=>route.forEach(el=>el.classList.add('note-glow')),harmonyAt);setTimeout(()=>route.forEach(el=>el.classList.remove('note-glow')),harmonyAt+1500);try{play(notes[q.path[0]],notes[q.path[q.path.length-1]],false);setTimeout(()=>play(notes[q.path[0]],notes[q.path[q.path.length-1]],true),harmonyAt)}catch(e){}return harmonyAt+1800}
+    function playTrainComplete(q){
+      const route=[...document.querySelectorAll('#train-view .train-engine,#train-view .train-car,#train-view .train-station')];
+      const ordered=q.reverse?route.slice().reverse():route,step=650;
+      ordered.forEach((el,i)=>setTimeout(()=>{
+        el.classList.add('note-glow');
+        setTimeout(()=>el.classList.remove('note-glow'),520);
+      },i*step));
+      const harmonyAt=route.length*step+280;
+      setTimeout(()=>route.forEach(el=>el.classList.add('note-glow')),harmonyAt);
+      setTimeout(()=>route.forEach(el=>el.classList.remove('note-glow')),harmonyAt+1500);
+      try{
+        const low=notes[q.path[0]],high=notes[q.path[q.path.length-1]];
+        play(q.reverse?high:low,q.reverse?low:high,false);
+        setTimeout(()=>play(low,high,true),harmonyAt);
+      }catch(e){}
+      return harmonyAt+4500;
+    }
     function renderTrain(){if(!trainQuestion)return;const q=trainQuestion,expected=q.path.slice(1),completed=trainPicked.length===expected.length,routeCars=expected.map((note,index)=>trainPiece(trainPicked[index]??null,`train-car ${trainPicked[index]!==undefined?'filled':''}${index===expected.length-1?' final':''}`,index+2,index===expected.length-1)).join(''),countDots=[1,2,3,4,5,6,7,8].map(n=>`<i class="${n<=trainStars?'on':''}"></i>`).join(''),used=new Set(trainPicked),bank=q.options.map(index=>`<button class="train-note ${used.has(index)?'used':''}" data-note="${index}" draggable="${!used.has(index)}" ${used.has(index)?'disabled':''}><b>${notes[index].name}</b><small>${notes[index].letter}</small></button>`).join(''),answerArea=completed?`<div class="train-complete"><b>火車到站了！${notes[q.start].name} 到 ${notes[q.path[q.path.length-1]].name} 是幾度？</b><div class="train-answer-grid">${[1,2,3,4,5,6,7,8].map(d=>`<button data-degree="${d}" ${trainChecked?'disabled':''} class="${trainAnswer===d?'chosen ':''}${trainChecked&&d===q.degree?'correct ':''}${trainChecked&&trainAnswer===d&&d!==q.degree?'wrong':''}">${d} 度</button>`).join('')}</div>${trainChecked?`<p class="train-message ${trainAnswer===q.degree?'':'wrong'}">${trainAnswer===q.degree?'答對了！下一段音階準備出發。':`還差一點，起點和終點都要算，答案是 ${q.degree} 度。`}</p><button id="train-next" class="primary train-next">下一段音階 →</button>`:''}</div>`:'';$('train-view').innerHTML=`<div class="card train-card ${trainDeparting?'departing':''} ${trainDirection==='down'?'going-left':'going-right'}"><div class="train-head"><div><span class="tag lime">STEP BY STEP</span><h2>音階小火車</h2></div><div class="train-switch"><button id="train-up" class="${trainDirection==='up'?'active':''}">往上練習</button><button id="train-down" class="${trainDirection==='down'?'active':''}">往下練習</button></div></div><div class="train-intro"><b>🚂 任務：按照音階順序接車廂</b>先看紫色起點音，再選下一個應該出現的唱名。完成後，自己數起點到最後音符共有幾度。</div><div class="train-progress"><span>完成路線</span>${countDots}</div><div class="train-stage"><div class="train-route"><div class="train-engine${expected.length===0?' final':''}"><b>${notes[q.start].name}</b><small>第 1 站</small>${expected.length===0?'<em class="arrival-label">🚉 終點車站</em>':''}</div>${routeCars}</div><div class="train-track"></div></div><div class="train-bank"><p>選擇下一節車廂（可以直接點擊，也可以拖曳）</p><div class="train-bank-items">${bank}</div><div class="train-message ${trainMessage.includes('不')?'wrong':''}">${trainMessage}</div></div>${answerArea}</div>`;$('train-up').onclick=()=>{trainDirection='up';trainQuestion=makeTrainQuestion();trainPicked=[];trainAnswer=null;trainChecked=false;trainMessage='先找下一個音符車廂。';renderTrain()};$('train-down').onclick=()=>{trainDirection='down';trainQuestion=makeTrainQuestion();trainPicked=[];trainAnswer=null;trainChecked=false;trainMessage='先找下一個音符車廂。';renderTrain()};document.querySelectorAll('.train-note').forEach(button=>{button.onclick=()=>addTrainNote(+button.dataset.note);button.ondragstart=()=>{trainDragIndex=+button.dataset.note}});document.querySelectorAll('.train-car:not(.filled)').forEach(car=>{car.ondragover=e=>e.preventDefault();car.ondrop=e=>{e.preventDefault();if(trainDragIndex!==null)addTrainNote(trainDragIndex)}});document.querySelectorAll('.train-answer-grid button').forEach(button=>button.onclick=()=>{if(!trainChecked){trainAnswer=+button.dataset.degree;trainChecked=true;if(trainAnswer===q.degree){trainStars++;trainDeparting=false;renderTrain();const wait=playTrainComplete(q);setTimeout(()=>{trainDeparting=true;renderTrain();setTimeout(()=>{trainQuestion=makeTrainQuestion();trainPicked=[];trainAnswer=null;trainChecked=false;trainMessage='新的路線出發囉！';trainDeparting=false;renderTrain()},1900)},wait)}else renderTrain()}});if($('train-next'))$('train-next').onclick=()=>{trainQuestion=makeTrainQuestion();trainPicked=[];trainAnswer=null;trainChecked=false;trainMessage='新的路線出發囉！';renderTrain()}}
     function addTrainNote(index){if(!trainQuestion||trainChecked||trainPicked.includes(index))return;const expected=trainQuestion.path[trainPicked.length+1];if(index===expected){trainPicked.push(index);playOne(notes[index]);trainMessage=trainPicked.length===trainQuestion.path.length-1?'每一節都接對了！現在一起數音程。':`很好！${notes[index].name} 是第 ${trainPicked.length+1} 站。`}else{trainMessage=`這一節還不是下一個音。想想看，${notes[expected].name} 在哪裡？`}renderTrain()}
     function makeTrainQuestion(){const degree=2+Math.floor(Math.random()*7),distance=degree-1,direction=trainDirection==='up'?1:-1,start=direction===1?Math.floor(Math.random()*(8-distance)):distance+Math.floor(Math.random()*(8-distance)),path=Array.from({length:degree},(_,i)=>start+i*direction),choices=new Set(path.slice(1));while(choices.size<Math.min(6,degree+2))choices.add(Math.floor(Math.random()*8));const options=[...choices];for(let i=options.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[options[i],options[j]]=[options[j],options[i]]}return{degree:degree,start:start,path:path,options:options,direction:direction,reverse:Math.random()>.5}}
     function renderTrain(){if(!trainQuestion)return;const q=trainQuestion,expected=q.reverse?q.path.slice(0,-1).reverse():q.path.slice(1),completed=trainPicked.length===expected.length,displayNotes=q.reverse?expected.slice().reverse():expected,routeCars=displayNotes.map((note,visualIndex)=>{const pickIndex=q.reverse?expected.length-1-visualIndex:visualIndex,picked=trainPicked[pickIndex];return trainPiece(picked===undefined?null:picked,'train-car '+(picked!==undefined?'filled ':'')+(visualIndex===displayNotes.length-1?'final':''),visualIndex+2,visualIndex===displayNotes.length-1)}).join(''),knownEnd=notes[q.path[q.path.length-1]],route=q.reverse?routeCars+'<div class="train-station"><b>'+knownEnd.name+'</b><small>終點站</small></div>':'<div class="train-engine"><b>'+notes[q.start].name+'</b><small>起點站</small></div>'+routeCars,modeText=q.reverse?'右邊顯示終點；請從右往左、依音階往'+(q.direction===1?'下':'上')+'推回起點。':'左邊顯示起點；請從左往右、依音階往'+(q.direction===1?'上':'下')+'找到終點。',bankText=q.reverse?'從終點旁邊開始，選擇下一節往左的車廂。':'從起點旁邊開始，選擇下一節往右的車廂。',countDots=[1,2,3,4,5,6,7,8].map(n=>'<i class="'+(n<=trainStars?'on':'')+'"></i>').join(''),used=new Set(trainPicked),bank=q.options.map(index=>'<button class="train-note '+(used.has(index)?'used':'')+'" data-note="'+index+'" draggable="'+(!used.has(index))+'" '+(used.has(index)?'disabled':'')+'><b>'+notes[index].name+'</b><small>'+notes[index].letter+'</small></button>').join(''),answerArea=completed?'<div class="train-complete"><b>'+notes[q.start].name+' 到 '+knownEnd.name+' 是幾度？</b><div class="train-answer-grid">'+[1,2,3,4,5,6,7,8].map(d=>'<button data-degree="'+d+'" '+(trainChecked?'disabled':'')+' class="'+(trainAnswer===d?'chosen ':'')+(trainChecked&&d===q.degree?'correct ':'')+(trainChecked&&trainAnswer===d&&d!==q.degree?'wrong':'')+'">'+d+' 度</button>').join('')+'</div>'+(trainChecked?'<p class="train-message '+(trainAnswer===q.degree?'':'wrong')+'">'+(trainAnswer===q.degree?'答對了！示範音程播放完後會換下一題。':'還差一點，起點和終點都要算；示範音程播放完後會換下一題。')+'</p>':'')+'</div>':'';$('train-view').innerHTML='<div class="card train-card '+(trainDeparting?'departing ':'')+(trainDirection==='down'?'going-left':'going-right')+'"><div class="train-head"><div><span class="tag lime">STEP BY STEP</span><h2>音階小火車</h2></div><div class="train-switch"><button id="train-up" class="'+(trainDirection==='up'?'active':'')+'">上行音階</button><button id="train-down" class="'+(trainDirection==='down'?'active':'')+'">下行音階</button></div></div><div class="train-intro"><b>🚂 任務：依照題目方向接車廂</b>'+modeText+'</div><div class="train-progress"><span>完成路線</span>'+countDots+'</div><div class="train-stage"><div class="train-route">'+route+'</div><div class="train-track"></div></div><div class="train-bank"><p>'+bankText+'</p><div class="train-bank-items">'+bank+'</div><div class="train-message '+(trainMessage.includes('不')?'wrong':'')+'">'+trainMessage+'</div></div>'+answerArea+'</div>';$('train-up').onclick=()=>{stopTrainPlayback();trainDirection='up';trainQuestion=makeTrainQuestion();trainPicked=[];trainAnswer=null;trainChecked=false;trainMessage='依照題目方向選第一節車廂。';renderTrain()};$('train-down').onclick=()=>{stopTrainPlayback();trainDirection='down';trainQuestion=makeTrainQuestion();trainPicked=[];trainAnswer=null;trainChecked=false;trainMessage='依照題目方向選第一節車廂。';renderTrain()};document.querySelectorAll('.train-note').forEach(button=>{button.onclick=()=>addTrainNote(+button.dataset.note);button.ondragstart=()=>{trainDragIndex=+button.dataset.note}});document.querySelectorAll('.train-car:not(.filled)').forEach(car=>{car.ondragover=e=>e.preventDefault();car.ondrop=e=>{e.preventDefault();if(trainDragIndex!==null)addTrainNote(trainDragIndex)}});document.querySelectorAll('.train-answer-grid button').forEach(button=>button.onclick=()=>{if(!trainChecked){trainAnswer=+button.dataset.degree;trainChecked=true;if(trainAnswer===q.degree){trainStars++;trainDeparting=false;renderTrain();const wait=playTrainComplete(q);setTimeout(()=>{trainDeparting=true;renderTrain();setTimeout(()=>{trainQuestion=makeTrainQuestion();trainPicked=[];trainAnswer=null;trainChecked=false;trainMessage='新的路線出發囉！';trainDeparting=false;renderTrain()},1900)},wait)}else renderTrain()}})}
     function addTrainNote(index){if(!trainQuestion||trainChecked||trainPicked.includes(index))return;const expected=trainQuestion.reverse?trainQuestion.path[trainQuestion.path.length-2-trainPicked.length]:trainQuestion.path[trainPicked.length+1];if(index===expected){trainPicked.push(index);playOne(notes[index]);trainMessage=trainPicked.length===trainQuestion.path.length-1?'每一節都接對了！現在一起數音程。':'很好！'+notes[index].name+' 是下一站。'}else{trainMessage='這一節還不是正確的下一個音。依照題目方向再想一想。'}renderTrain()}
+    let trainRevealBag=[];
+    function nextTrainReveal(){
+      if(!trainRevealBag.length)trainRevealBag=Math.random()<.5?[false,true]:[true,false];
+      return trainRevealBag.pop();
+    }
+    function makeTrainQuestion(){
+      const degree=2+Math.floor(Math.random()*7);
+      const start=Math.floor(Math.random()*(9-degree));
+      const path=Array.from({length:degree},(_,i)=>start+i);
+      const reverse=nextTrainReveal();
+      const choices=new Set(reverse?path.slice(0,-1):path.slice(1));
+      while(choices.size<Math.min(6,degree+2))choices.add(Math.floor(Math.random()*8));
+      const options=[...choices];
+      for(let i=options.length-1;i>0;i--){
+        const j=Math.floor(Math.random()*(i+1));
+        [options[i],options[j]]=[options[j],options[i]];
+      }
+      return{degree,start,path,options,reverse};
+    }
+    function renderTrain(){
+      if(!trainQuestion)return;
+      const q=trainQuestion,completed=trainPicked.length===q.degree-1;
+      const nextIndex=completed?-1:q.reverse?q.degree-2-trainPicked.length:trainPicked.length+1;
+      const noteAt=index=>{
+        if(index===0&&!q.reverse)return q.path[0];
+        if(index===q.degree-1&&q.reverse)return q.path[index];
+        return q.reverse?trainPicked[q.degree-2-index]:trainPicked[index-1];
+      };
+      const route=Array.from({length:q.degree},(_,index)=>{
+        const value=noteAt(index),known=value!==undefined,next=index===nextIndex;
+        if(index===0||index===q.degree-1){
+          const side=index===0?'train-engine':'train-station';
+          const label=index===0?'起點站':'終點站';
+          return '<div class="'+side+' train-endpoint'+(known?'':' unknown')+(next?' next':'')+'"><b>'+(known?notes[value].name:'＋')+'</b><small>'+label+'</small></div>';
+        }
+        return trainPiece(known?value:null,'train-car'+(known?' filled':'')+(next?' next':''),index+1,false);
+      }).join('');
+      const knownName=q.reverse?notes[q.path[q.degree-1]].name:notes[q.path[0]].name;
+      const instruction=q.reverse
+        ?'右邊已知終點 '+knownName+'。從右往左，按照下行音階接車廂，推回左邊的起點。'
+        :'左邊已知起點 '+knownName+'。從左往右，按照上行音階接車廂，找到右邊的終點。';
+      const countDots=Array.from({length:8},(_,i)=>'<i class="'+(i<trainStars?'on':'')+'"></i>').join('');
+      const used=new Set(trainPicked);
+      const bank=q.options.map(index=>'<button class="train-note '+(used.has(index)?'used':'')+'" data-note="'+index+'" draggable="'+(!used.has(index))+'" '+(used.has(index)?'disabled':'')+'><b>'+notes[index].name+'</b><small>'+notes[index].letter+'</small></button>').join('');
+      const answerArea=completed
+        ?'<div class="train-complete"><b>'+notes[q.path[0]].name+' 到 '+notes[q.path[q.degree-1]].name+' 是幾度？</b><div class="train-answer-grid">'+[1,2,3,4,5,6,7,8].map(d=>'<button data-degree="'+d+'" '+(trainChecked?'disabled':'')+' class="'+(trainAnswer===d?'chosen ':'')+(trainChecked&&d===q.degree?'correct ':'')+(trainChecked&&trainAnswer===d&&d!==q.degree?'wrong':'')+'">'+d+' 度</button>').join('')+'</div>'+(trainChecked?'<p class="train-message '+(trainAnswer===q.degree?'':'wrong')+'">'+(trainAnswer===q.degree?'答對了！':'正確答案是 '+q.degree+' 度。')+' 示範播放完會自動換題。</p>':'')+'</div>'
+        :'';
+      $('train-view').innerHTML='<div class="card train-card '+(q.reverse?'going-left':'going-right')+'"><div class="train-head"><div><span class="tag lime">STEP BY STEP</span><h2>音階小火車</h2></div><span class="train-direction">'+(q.reverse?'從終點推回起點 ↓':'從起點找到終點 ↑')+'</span></div><div class="train-intro"><b>🚂 任務：依照題目方向接車廂</b>'+instruction+'</div><div class="train-progress"><span>完成路線</span>'+countDots+'</div><div class="train-stage"><div class="train-route">'+route+'</div><div class="train-track"></div></div><div class="train-bank"><p>'+(q.reverse?'從右邊終點旁開始，逐格往左選音。':'從左邊起點旁開始，逐格往右選音。')+'</p><div class="train-bank-items">'+bank+'</div><div class="train-message '+(trainMessage.includes('不')?'wrong':'')+'">'+trainMessage+'</div></div>'+answerArea+'</div>';
+      document.querySelectorAll('.train-note').forEach(button=>{
+        button.onclick=()=>addTrainNote(+button.dataset.note);
+        button.ondragstart=()=>{trainDragIndex=+button.dataset.note};
+      });
+      document.querySelectorAll('.train-route .next').forEach(slot=>{
+        slot.ondragover=event=>event.preventDefault();
+        slot.ondrop=event=>{event.preventDefault();if(trainDragIndex!==null)addTrainNote(trainDragIndex)};
+      });
+      document.querySelectorAll('.train-answer-grid button').forEach(button=>button.onclick=()=>{
+        if(trainChecked)return;
+        trainAnswer=+button.dataset.degree;
+        trainChecked=true;
+        if(trainAnswer===q.degree)trainStars++;
+        renderTrain();
+        const wait=playTrainComplete(q);
+        setTimeout(()=>{
+          if(trainQuestion!==q||activeMode!=='train')return;
+          trainQuestion=makeTrainQuestion();
+          trainPicked=[];
+          trainAnswer=null;
+          trainChecked=false;
+          trainMessage='依照題目方向選下一個音。';
+          trainDragIndex=null;
+          renderTrain();
+        },wait);
+      });
+    }
+    function addTrainNote(index){
+      if(!trainQuestion||trainChecked||trainPicked.includes(index))return;
+      const q=trainQuestion;
+      const expected=q.reverse?q.path[q.degree-2-trainPicked.length]:q.path[trainPicked.length+1];
+      if(index===expected){
+        trainPicked.push(index);
+        playOne(notes[index]);
+        trainMessage=trainPicked.length===q.degree-1?'路線完成！數一數起點到終點是幾度。':'接對了，繼續依照題目方向選音。';
+      }else{
+        trainMessage='這一節不是下一個音，請依照音階順序再想一想。';
+      }
+      renderTrain();
+    }
     function makeShooterQuestion(){const degree=2+Math.floor(Math.random()*4),distance=degree-1,up=Math.random()>.5,start=up?Math.floor(Math.random()*(8-distance)):distance+Math.floor(Math.random()*(8-distance)),target=start+(up?distance:-distance),choices=new Set([target]);while(choices.size<4)choices.add(Math.floor(Math.random()*8));const options=[...choices];for(let i=options.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[options[i],options[j]]=[options[j],options[i]]}return{start,target,degree,up,options}}
     function shooterPrompt(q){return`從 <span class="prompt-start">${notes[q.start].name}</span> 往${q.up?'上':'下'} <strong>${q.degree} 度</strong>，要找到哪個音？`}
     function miniStaff(note){let lines='';for(let i=0;i<5;i++)lines+=`<i class="mini-line" style="bottom:${13+i*7}px"></i>`;const bottom=13+note.step*3.5,ledger=note.step===-2?`<i class="mini-ledger" style="bottom:${bottom}px"></i>`:'';return`<span class="mini-staff">${lines}${ledger}<i class="mini-whole" style="bottom:${bottom}px"></i></span>`}
@@ -110,11 +217,8 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
     function resetShooter(){clearShooterTimers();shooterStatus='ready';shooterQuestion=null}
     function show(mode){if(activeMode==='shooter'&&mode!=='shooter'&&shooterStatus==='running')resetShooter();activeMode=mode;const quiz=mode==='quiz',train=mode==='train',shooter=mode==='shooter';$('explore-view').classList.toggle('hidden',quiz||train||shooter);$('quiz-view').classList.toggle('hidden',!quiz);$('train-view').classList.toggle('hidden',!train);$('shooter-view').classList.toggle('hidden',!shooter);if(train){if(!trainQuestion){trainQuestion=makeTrainQuestion();trainPicked=[];trainMessage='先找下一個音符車廂。'}renderTrain();$('mission-label').textContent='基礎練習';$('mission-value').textContent='音階順序'}else if(shooter){renderShooter();if(shooterStatus==='ready'){$('mission-label').textContent='進階任務';$('mission-value').textContent='60 秒挑戰'}}else if(!quiz){$('mission-label').textContent='今天的任務';$('mission-value').textContent='認識「度」'}}
     document.addEventListener('keydown',event=>{if(activeMode!=='shooter'||shooterStatus!=='running')return;if(event.key==='ArrowLeft'){event.preventDefault();selectShooterLane(-1)}if(event.key==='ArrowRight'){event.preventDefault();selectShooterLane(1)}if(event.key===' '||event.key==='Enter'){event.preventDefault();resolveShot(selectedLane)}});
-    function randomizeTrainDirection(){trainDirection=Math.random()<.5?'up':'down'}
-    function startTrain(){stopTrainPlayback();randomizeTrainDirection();trainQuestion=makeTrainQuestion();trainPicked=[];trainStars=0;trainAnswer=null;trainChecked=false;trainMessage='先找下一個音符車廂。';show('train')}
+    function startTrain(){stopTrainPlayback();trainRevealBag=[];trainQuestion=makeTrainQuestion();trainPicked=[];trainStars=0;trainAnswer=null;trainChecked=false;trainMessage='依照題目方向選下一個音。';trainDragIndex=null;show('train')}
     document.addEventListener('click',event=>{if(activeMode!=='train')return;const control=event.target.closest('#train-next,#train-up,#train-down,#story-explore,#story-train,#story-quiz,#story-shooter,#home');if(control)stopTrainPlayback()},true);
-    document.addEventListener('click',event=>{if(activeMode!=='train'||!event.target.matches('.train-answer-grid button'))return;const answeredQuestion=trainQuestion;setTimeout(()=>{if(trainQuestion===answeredQuestion&&trainChecked)randomizeTrainDirection()},1)},true);
-    document.addEventListener('click',event=>{if(activeMode!=='train'||!event.target.matches('.train-answer-grid button'))return;const answeredQuestion=trainQuestion;setTimeout(()=>{if(trainQuestion!==answeredQuestion||!trainChecked||trainAnswer===answeredQuestion.degree)return;const wait=playTrainComplete(answeredQuestion);setTimeout(()=>{if(trainQuestion!==answeredQuestion)return;trainDeparting=true;renderTrain();setTimeout(()=>{if(trainQuestion!==answeredQuestion)return;trainQuestion=makeTrainQuestion();trainPicked=[];trainAnswer=null;trainChecked=false;trainMessage='新的路線出發囉！';trainDeparting=false;renderTrain()},1900)},wait)},0)},true);
     document.addEventListener('click',event=>{if(activeMode!=='quiz'||event.target.id!=='check')return;const answeredQuestion=question;setTimeout(()=>{if(activeMode!=='quiz'||question!==answeredQuestion||!checked)return;if(qNo===5){finished=true;renderQuiz();return}qNo++;question=newQuestion();degreeAnswer=null;typeAnswer=null;checked=false;renderQuiz();autoplayQuizHarmony()},1600)},true);
     $('story-explore').onclick=()=>show('explore');$('story-train').onclick=startTrain;$('story-quiz').onclick=startQuiz;$('story-shooter').onclick=()=>show('shooter');$('home').onclick=()=>show('explore');renderExplore();
   </script>
