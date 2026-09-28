@@ -56,48 +56,37 @@
   .train-endpoint.unknown{background:#fff;color:#688;border:3px dashed #b9c5cf}
   .train-route .next{border-color:#2fb8c7;box-shadow:0 0 0 5px #2fb8c744,0 6px 0 #00000018}
   .train-direction{padding:8px 13px;border-radius:999px;background:#e9fbf6;color:#176457;font-size:13px;font-weight:900}
-  #explore-view{grid-template-columns:minmax(0,1fr);gap:0}
-  .explore-result{order:0;padding:22px 26px 25px;border-top:4px solid #dbe98d;background:linear-gradient(180deg,#f7fce7,#fff 90%)}
-  .explore-bridge{justify-self:center;margin:7px 0;padding:6px 14px;border-radius:99px;background:#e6f4b0;color:#536b19;font-size:12px;font-weight:900}
-  .explore-result-head{display:flex;align-items:end;justify-content:space-between;gap:14px}
-  .explore-result-head h2{margin:6px 0 0;font-size:23px}
-  .explore-result-head>p{margin:0;color:#58705d;font-size:13px;font-weight:800}
-  .count-flow{display:grid;grid-template-columns:minmax(0,1fr) 160px;gap:17px;align-items:stretch;margin-top:16px}
-  .count-route,.count-answer{border:1px solid #e2e9d3;border-radius:18px;background:#fff}
-  .count-route{min-width:0;padding:17px 19px}
-  .count-label{margin:0 0 5px;color:#678027;font-size:11px;font-weight:900;letter-spacing:.04em}
-  .count-route .pair{margin:0 0 13px;text-align:left;color:var(--ink);font-size:18px;font-weight:900}
-  .count-route .path{justify-content:flex-start;gap:9px 17px;padding:0;border:0}
-  .count-route .chip{position:relative;display:grid;grid-template-columns:auto auto;column-gap:6px;align-items:center;min-width:76px;padding:9px 10px;border:1px solid #e5e2ec;background:#f7f5fa;color:var(--ink);font-size:14px}
-  .count-route .chip span{width:22px;height:22px;font-size:11px}
-  .count-route .chip small{grid-column:1/-1;margin-top:4px;color:var(--muted);font-size:10px;font-weight:800;text-align:center}
+  #explore-view{grid-template-columns:minmax(0,1fr)}
+  .explore-heading{display:grid;grid-template-columns:minmax(135px,190px) minmax(0,1fr);gap:18px;align-items:start}
+  .explore-heading h2{margin-top:7px}
+  .explore-result{min-width:0;padding:10px 13px 11px;border:1px solid #dfe9b6;border-radius:15px;background:#f8fce9;box-shadow:none}
+  .explore-result-head{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+  .explore-result-head strong{font-size:14px;color:#41591c}
+  .explore-result-head .pair{margin:0 0 0 auto;color:var(--muted);font-size:12px;font-weight:800}
+  .count-flow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;align-items:center}
+  .count-route{min-width:0}
+  .count-route .path{justify-content:flex-start;gap:7px;padding:0;border:0}
+  .count-route .chip{display:grid;grid-template-columns:auto auto;align-items:center;justify-content:center;gap:2px 5px;min-width:68px;min-height:43px;padding:5px 7px;border:1px solid #e5e2ec;background:#fff;color:var(--ink);font-size:13px;font-weight:800}
+  .count-route .chip span{width:21px;height:21px;font-size:10px}
+  .count-route .chip small{grid-column:1/-1;color:var(--muted);font-size:9px;font-weight:800;text-align:center}
   .count-route .chip.start{border-color:#c8b6ef;background:#f2ecff;color:var(--dark)}
   .count-route .chip.end{border-color:#f5b5a9;background:#fff0ec;color:#a84439}
   .count-route .chip.end span{background:var(--coral)}
   .count-route .chip.both{border-color:#c8b6ef;background:linear-gradient(110deg,#f2ecff 50%,#fff0ec 50%)}
   .count-route .chip.both span{background:linear-gradient(110deg,var(--purple) 50%,var(--coral) 50%)}
-  .count-answer{display:grid;place-content:center;padding:12px;text-align:center;background:#f8fbe8}
-  .count-answer>span{color:#587029;font-size:12px;font-weight:900}
-  .count-answer .circle{width:112px;height:112px;margin:8px auto 0;border-width:8px;box-shadow:none}
-  .count-answer .circle b{font-size:45px}
-  .explore-result .tip{margin-top:13px;padding:10px 13px}
-  .explore-result .tip p{font-size:13px}
-  .explore-result .tip p b{font-size:13px}
-  @media(max-width:760px){.explore-result-head{align-items:flex-start;flex-direction:column}.count-flow{grid-template-columns:1fr}.count-answer{display:flex;align-items:center;justify-content:center;gap:18px}.count-answer .circle{width:85px;height:85px;margin:0;border-width:6px}.count-answer .circle b{font-size:35px}.count-answer .circle span{font-size:12px}}
-  @media(max-width:540px){.explore-result{padding:20px}.count-route{padding:14px}.count-route .path{gap:7px}.count-route .chip{min-width:68px;padding:7px;font-size:12px}.explore-result-head h2{font-size:20px}}
+  .count-answer{display:flex;align-items:center;gap:3px;white-space:nowrap;color:#435e20;font-size:13px;font-weight:900}
+  .count-answer b{display:grid;place-items:center;min-width:42px;height:42px;border-radius:50%;background:#e7f58d;color:var(--dark);font-size:24px}
+  .count-hint{margin:7px 0 0;color:#587029;font-size:11px;line-height:1.4}
+  @media(max-width:900px){.count-route .chip small{display:none}.count-route .chip{min-height:35px}}
+  @media(max-width:690px){.explore-heading{grid-template-columns:1fr;gap:12px}.explore-heading h2{margin-bottom:0}}
+  @media(max-width:540px){.explore-result{padding:9px}.count-route .chip{min-width:54px;padding:4px;font-size:11px}.count-answer{font-size:12px}}
 </style><style>.answer-group{margin-top:16px;padding-top:13px;border-top:1px dashed #ddd9e3}.answer-group h3{margin:0 0 8px;color:var(--muted);font-size:14px}.answer-group .answers{padding-top:0;border-top:0}.answer-group .degree-answers{grid-template-columns:repeat(8,1fr)}.compare-staves{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 0 14px}.interval-panel{padding:13px;border:1px solid var(--line);border-radius:16px;background:#fbfafd}.interval-panel.harmony-panel{background:#fff9f7;border-color:#f4ded9}.interval-title{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--dark);font-size:14px;font-weight:900}.interval-title span:last-child{color:var(--muted);font-size:11px;font-weight:800}.harmony-panel .interval-title{color:#b64d43}.interval-panel .staff{height:142px;margin:10px 0 0}.interval-panel .arrow{display:none}.interval-listen{width:100%;margin:10px 0 0;border:0;border-radius:11px;background:var(--purple);color:#fff;padding:10px 12px;font-size:12px;font-weight:900}.harmony-panel .interval-listen{background:var(--coral)}.interval-listen:hover{filter:brightness(.94)}.train-next,#quiz-view #next{display:none!important}@media(max-width:640px){.compare-staves{grid-template-columns:1fr}}@media(max-width:540px){.answer-group .degree-answers{grid-template-columns:repeat(4,1fr)}}</style></head>
 <body>
   <header class="topbar"><button class="brand" id="home"><span class="mark">♪</span><span>音程探險家</span></button><div class="mission"><span id="mission-label">今天的任務</span><b id="mission-value">認識「度」</b></div></header>
   <section class="hero"><div><p class="eyebrow">INTERVAL LAB · 五年級音樂</p><h1>兩個音，有多遠？</h1><p class="hero-copy">音樂祭的舞台正在等待你！選兩個音符、聽一聽，再沿著音階數數看。記得：<strong>起點和終點都要算！</strong></p></div><div class="scene" aria-hidden="true"><div class="scene-sky"><span class="floating-note note-a">♫</span><span class="floating-note note-b">♩</span><span class="music-star star-one">Do</span><span class="music-star star-two">Sol</span></div><div class="stage-floor"></div><span class="scene-label">完成任務，點亮舞台！</span></div></section>
   <section class="story-strip" aria-label="任務選擇"><button class="story-card" id="story-explore"><span class="story-icon">♩</span><span><b>音符階梯練習場</b><small>自由選音，觀察音符的距離</small></span><span class="story-go">→</span></button><button class="story-card" id="story-train"><span class="story-icon">🚂</span><span><b>音階小火車</b><small>慢慢接對音符車廂，再數音程</small></span><span class="story-go">→</span></button><button class="story-card" id="story-quiz"><span class="story-icon">★</span><span><b>音樂祭舞台挑戰</b><small>完成 5 題任務，點亮整座舞台</small></span><span class="story-go">→</span></button><button class="story-card" id="story-shooter"><span class="story-icon">⚡</span><span><b>音程射手</b><small>60 秒射擊正確音符，挑戰連擊</small></span><span class="story-go">→</span></button></section>
   <section class="workspace" id="explore-view">
-    <div class="card"><div class="heading"><div><span class="tag">STEP 1</span><h2>選擇兩個音符</h2></div></div><div class="compare-staves"><section class="interval-panel"><div class="interval-title"><span>曲調音程</span><span>先後播放</span></div><div id="explore-melody"></div><button class="interval-listen" id="play-melody">▶ 播放曲調音程</button></section><section class="interval-panel harmony-panel"><div class="interval-title"><span>和聲音程</span><span>同時播放</span></div><div id="explore-harmony"></div><button class="interval-listen" id="play-harmony">▶ 播放和聲音程</button></section></div><div class="pickers"><fieldset><legend><span>1</span>第一個音</legend><div class="notes" id="first-notes"></div></fieldset><fieldset><legend><span>2</span>第二個音</legend><div class="notes" id="second-notes"></div></fieldset></div></div>
-    <div class="explore-bridge" aria-hidden="true">↓ 接著一起數</div>
-    <aside class="card result explore-result" aria-live="polite">
-      <div class="explore-result-head"><div><span class="tag lime">STEP 2</span><h2>一起數音程</h2></div><p>從第一個音數到第二個音，起點和終點都要算。</p></div>
-      <div class="count-flow"><div class="count-route"><p class="count-label">依照音階順序，逐個數音名</p><p class="pair" id="pair">Do → Sol</p><div class="path" id="path"></div></div><div class="count-answer"><span>所以是</span><div class="circle"><b id="degree">5</b><span>度</span></div></div></div>
-      <div class="tip"><span>💡</span><p><b>數音名，不是數空格：</b> <span id="explain"></span></p></div>
-    </aside>
+    <div class="card"><div class="heading explore-heading"><div><span class="tag">STEP 1</span><h2>選擇兩個音符</h2></div><aside class="explore-result" aria-live="polite"><div class="explore-result-head"><span class="tag lime">STEP 2</span><strong>一起數音程</strong><span class="pair" id="pair">Do → Sol</span></div><div class="count-flow"><div class="count-route"><div class="path" id="path"></div></div><div class="count-answer"><span>共</span><b id="degree">5</b><span>度</span></div></div><p class="count-hint" id="explain"></p></aside></div><div class="compare-staves"><section class="interval-panel"><div class="interval-title"><span>曲調音程</span><span>先後播放</span></div><div id="explore-melody"></div><button class="interval-listen" id="play-melody">▶ 播放曲調音程</button></section><section class="interval-panel harmony-panel"><div class="interval-title"><span>和聲音程</span><span>同時播放</span></div><div id="explore-harmony"></div><button class="interval-listen" id="play-harmony">▶ 播放和聲音程</button></section></div><div class="pickers"><fieldset><legend><span>1</span>第一個音</legend><div class="notes" id="first-notes"></div></fieldset><fieldset><legend><span>2</span>第二個音</legend><div class="notes" id="second-notes"></div></fieldset></div></div>
   </section>
   <section class="workspace hidden" id="quiz-view"></section>
   <section class="train-shell hidden" id="train-view"></section>
