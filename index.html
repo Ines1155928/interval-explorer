@@ -584,8 +584,8 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
       activeMode=mode;
       const home=mode==='home',quiz=mode==='quiz',train=mode==='train',shooter=mode==='shooter';
       $('mode-home').classList.toggle('hidden',!home);
-      $('hero').classList.toggle('hidden',home);
-      $('story-strip').classList.toggle('hidden',home);
+      $('hero').classList.toggle('hidden',!home);
+      $('story-strip').classList.toggle('hidden',!home);
       $('explore-view').classList.toggle('hidden',home||quiz||train||shooter);
       $('quiz-view').classList.toggle('hidden',!quiz);
       $('train-view').classList.toggle('hidden',!train);
