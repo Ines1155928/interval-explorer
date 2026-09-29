@@ -121,6 +121,24 @@
   .mode-home-card .mode-arrow{margin-top:auto;padding-top:19px;color:var(--purple);font-size:22px;font-weight:900}
   @media(max-width:850px){.mode-home{padding-inline:18px}.mode-home-grid{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:540px){.mode-home{padding:24px 18px 45px}.mode-home-grid{grid-template-columns:1fr}.mode-home-card{min-height:155px;padding:18px}.mode-home-card .mode-icon{margin-bottom:13px;width:48px;height:48px;font-size:24px}}
+</style><style>
+  .hero{background-image:linear-gradient(90deg,rgba(42,29,92,.96) 0%,rgba(42,29,92,.85) 42%,rgba(42,29,92,.28) 72%,rgba(42,29,92,.12) 100%),url('assets/storybook-atlas.png');background-size:cover;background-position:center,center top}
+  .hero .scene{display:none}
+  .hero>div:first-child{position:relative;z-index:2;max-width:690px}
+  .mode-home-card{overflow:hidden}
+  .mode-art{display:block;width:calc(100% + 38px);height:auto;aspect-ratio:8/3;margin:-23px -19px 18px;background-image:url('assets/storybook-atlas.png');background-size:200% 300%;background-repeat:no-repeat;border-bottom:1px solid #ffffffaa}
+  .mode-art-explore{background-position:0 50%}
+  .mode-art-train{background-position:100% 50%}
+  .mode-art-quiz{background-position:0 100%}
+  .mode-art-shooter{background-position:100% 100%}
+  #explore-view,#quiz-view,#train-view,#shooter-view{position:relative}
+  #explore-view:after,#quiz-view:after,#train-view:after,#shooter-view:after{content:"";position:absolute;z-index:4;pointer-events:none;right:25px;top:14px;width:min(28vw,270px);aspect-ratio:8/3;border-radius:16px;background-image:url('assets/storybook-atlas.png');background-size:200% 300%;background-repeat:no-repeat;opacity:.11;box-shadow:0 8px 25px #3d2e7118}
+  #explore-view:after{background-position:0 50%}
+  #train-view:after{background-position:100% 50%}
+  #quiz-view:after{background-position:0 100%}
+  #shooter-view:after{background-position:100% 100%}
+  @media(max-width:850px){.mode-art{width:calc(100% + 38px)}#explore-view:after,#quiz-view:after,#train-view:after,#shooter-view:after{width:180px;right:24px;opacity:.08}}
+  @media(max-width:540px){.hero{background-position:center,58% top}.mode-art{width:calc(100% + 36px);margin:-18px -18px 14px}#explore-view:after,#quiz-view:after,#train-view:after,#shooter-view:after{display:none}}
 </style></head>
 <body>
   <header class="topbar"><button class="brand" id="home"><span class="mark">♪</span><span>音程探險家</span></button><button class="mode-back hidden" id="mode-back">← 模式選擇</button><div class="mission"><span id="mission-label">今天的任務</span><b id="mission-value">認識「度」</b></div></header>
@@ -130,10 +148,10 @@
     <div class="mode-home-inner">
       <div class="mode-home-title"><span class="tag">INTERVAL LAB · 五年級音樂</span><h1>選擇今天的音程任務</h1><p>選一個模式開始練習，進入後會使用完整畫面。</p></div>
       <div class="mode-home-grid">
-        <button class="mode-home-card" id="mode-explore"><span class="mode-icon">♩</span><h2>自由探索</h2><p>選擇兩個音符，觀察曲調音程與和聲音程。</p><span class="mode-arrow">開始探索 →</span></button>
-        <button class="mode-home-card" id="mode-train"><span class="mode-icon">🚂</span><h2>音階小火車</h2><p>依照音階順序接車廂，再自己數出音程度數。</p><span class="mode-arrow">開始接車廂 →</span></button>
-        <button class="mode-home-card" id="mode-quiz"><span class="mode-icon">★</span><h2>舞台挑戰</h2><p>同時判斷曲調或和聲，以及音程是幾度。</p><span class="mode-arrow">開始挑戰 →</span></button>
-        <button class="mode-home-card" id="mode-shooter"><span class="mode-icon">🫧</span><h2>音程泡泡龍</h2><p>瞄準唱名泡泡，答對並湊滿三顆就能消除。</p><span class="mode-arrow">開始遊戲 →</span></button>
+        <button class="mode-home-card" id="mode-explore"><span class="mode-art mode-art-explore" aria-hidden="true"></span><h2>自由探索</h2><p>選擇兩個音符，觀察曲調音程與和聲音程。</p><span class="mode-arrow">開始探索 →</span></button>
+        <button class="mode-home-card" id="mode-train"><span class="mode-art mode-art-train" aria-hidden="true"></span><h2>音階小火車</h2><p>依照音階順序接車廂，再自己數出音程度數。</p><span class="mode-arrow">開始接車廂 →</span></button>
+        <button class="mode-home-card" id="mode-quiz"><span class="mode-art mode-art-quiz" aria-hidden="true"></span><h2>舞台挑戰</h2><p>同時判斷曲調或和聲，以及音程是幾度。</p><span class="mode-arrow">開始挑戰 →</span></button>
+        <button class="mode-home-card" id="mode-shooter"><span class="mode-art mode-art-shooter" aria-hidden="true"></span><h2>音程泡泡龍</h2><p>瞄準唱名泡泡，答對並湊滿三顆就能消除。</p><span class="mode-arrow">開始遊戲 →</span></button>
       </div>
     </div>
   </section>
