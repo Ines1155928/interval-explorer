@@ -148,7 +148,7 @@
     const $=id=>document.getElementById(id);let first=0,second=4,isHarmony=false,question={a:1,b:4,h:false,kind:'degree'},qNo=1,answer=null,checked=false,score=0,finished=false,activeMode='home',quizPlan=[],quizQuestionIndex=0;
     const touchInput=matchMedia('(pointer:coarse)').matches||navigator.maxTouchPoints>0;
     let shooterStatus='ready',shooterMode='practice',shooterTime=60,shooterScore=0,shooterPoints=0,shooterPopped=0,shooterMisses=0,shooterCombo=0,shooterBest=0,shooterRound=0,shooterQuestion=null,shooterAnswered=false,shooterTick=null,shooterNextTimer=null,shooterAnimation=null,shooterBoard=[],shooterTypes=[],shooterShots=0,shooterPhase=0,shooterAimAngle=-Math.PI/2,shooterPointerId=null,shooterFinishReason='';
-    let trainDirection='up',trainQuestion=null,trainPicked=[],trainStars=0,trainAnswer=null,trainChecked=false,trainMessage='',trainDragIndex=null,trainDeparting=false,trainPlaybackTimers=[],trainPlaybackContexts=[];
+    let trainDirection='up',trainQuestion=null,trainPicked=[],trainStars=0,trainAnswer=null,trainChecked=false,trainMessage='',trainDragIndex=null,trainDeparting=false,trainFinished=false,trainPlaybackTimers=[],trainPlaybackContexts=[];
     function tone(midi,start,duration,ctx,target=ctx.destination){const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.value=440*Math.pow(2,(midi-69)/12);g.gain.setValueAtTime(.0001,start);g.gain.exponentialRampToValueAtTime(.36,start+.025);g.gain.exponentialRampToValueAtTime(.0001,start+duration);o.connect(g).connect(target);o.start(start);o.stop(start+duration+.05)}
     function makeReverb(ctx){const seconds=2.7,length=Math.floor(ctx.sampleRate*seconds),buffer=ctx.createBuffer(2,length,ctx.sampleRate);for(let channel=0;channel<2;channel++){const data=buffer.getChannelData(channel);for(let i=0;i<length;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/length,2.7)}const convolver=ctx.createConvolver();convolver.buffer=buffer;return convolver}
     function closeAudioContext(ctx){if(ctx&&ctx.state!=='closed')ctx.close().catch(()=>{})}
@@ -227,6 +227,14 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
       return{degree,start,path,options,reverse};
     }
     function renderTrain(){
+      if(trainFinished){
+        $('train-view').innerHTML='<div class="card finish train-finish"><div style="font-size:44px">🚂 ✨ 🎉</div><span class="tag lime">MISSION COMPLETE</span><h2>八條路線全部完成！</h2><div class="score"><b>8</b><span>/ 8 路線</span></div><p>你已經能依照音階順序接好車廂，也能正確算出音程度數。</p><div class="actions"><button class="secondary" id="train-home">回模式選擇</button><button class="primary" id="train-restart">再玩一次</button></div></div>';
+        $('train-home').onclick=()=>show('home');
+        $('train-restart').onclick=startTrain;
+        $('mission-label').textContent='小火車過關';
+        $('mission-value').textContent='8 / 8';
+        return;
+      }
       if(!trainQuestion)return;
       const q=trainQuestion,completed=trainPicked.length===q.degree-1;
       const nextIndex=completed?-1:q.reverse?q.degree-2-trainPicked.length:trainPicked.length+1;
@@ -251,12 +259,7 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
       const countDots=Array.from({length:8},(_,i)=>'<i class="'+(i<trainStars?'on':'')+'"></i>').join('');
       const used=new Set(trainPicked);
       const bank=q.options.map(index=>'<button class="train-note '+(used.has(index)?'used':'')+'" data-note="'+index+'" draggable="'+(!used.has(index))+'" '+(used.has(index)?'disabled':'')+'><b>'+notes[index].name+'</b><small>'+notes[index].letter+'</small></button>').join('');
-      const answerArea=completed
-        ?'<div class="train-complete"><b>'+notes[q.path[0]].name+' 到 '+notes[q.path[q.degree-1]].name+' 是幾度？</b><div class="train-answer-grid">'+[1,2,3,4,5,6,7,8].map(d=>'<button data-degree="'+d+'" '+(trainChecked?'disabled':'')+' class="'+(trainAnswer===d?'chosen ':'')+(trainChecked&&d===q.degree?'correct ':'')+(trainChecked&&trainAnswer===d&&d!==q.degree?'wrong':'')+'">'+d+' 度</button>').join('')+'</div>'+(trainChecked?'<p class="train-message '+(trainAnswer===q.degree?'':'wrong')+'">'+(trainAnswer===q.degree?'答對了！':'正確答案是 '+q.degree+' 度。')+' 示範後火車會開走，再自動換題。</p>':'')+'</div>'
-        :'';
-      const departureTrain='<div class="train-departure"><span>🚂</span>'+q.path.map(index=>'<span>'+notes[index].name+'</span>').join('')+'</div>';
-      const playbackStatus=trainChecked?'<div class="train-playback-status">'+(trainDeparting?'🚂 火車正開往終點站':'🎵 正在示範音階，接著火車出發')+'</div>':'';
-      $('train-view').innerHTML='<div class="card train-card'+(trainDeparting?' departing':'')+'"><div class="train-head"><div><span class="tag lime">STEP BY STEP</span><h2>音階小火車</h2></div><span class="train-direction">'+(q.reverse?'從終點推回起點 ↓':'從起點找到終點 ↑')+'</span></div><div class="train-intro"><b>🚂 任務：依照題目方向接車廂</b>'+instruction+'</div><div class="train-progress"><span>完成路線</span>'+countDots+'</div><div class="train-stage"><div class="train-route">'+route+'</div><div class="train-track"></div>'+departureTrain+playbackStatus+'</div><div class="train-bank"><p>'+(q.reverse?'從右邊終點旁開始，逐格往左選音。':'從左邊起點旁開始，逐格往右選音。')+'</p><div class="train-bank-items">'+bank+'</div><div class="train-message '+(trainMessage.includes('不')?'wrong':'')+'">'+trainMessage+'</div></div>'+answerArea+'</div>';
+      const bankArea=completed?'':''+bankArea+answerArea+'</div>';
       document.querySelectorAll('.train-note').forEach(button=>{
         button.onclick=()=>addTrainNote(+button.dataset.note);
         button.ondragstart=()=>{trainDragIndex=+button.dataset.note};
@@ -269,7 +272,19 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
         if(trainChecked)return;
         trainAnswer=+button.dataset.degree;
         trainChecked=true;
-        if(trainAnswer===q.degree)trainStars++;
+        if(trainAnswer!==q.degree){
+          playQuizFeedback(false);
+          renderTrain();
+          setTimeout(()=>{
+            if(trainQuestion!==q||activeMode!=='train'||trainFinished)return;
+            trainAnswer=null;
+            trainChecked=false;
+            renderTrain();
+          },1100);
+          return;
+        }
+        trainStars++;
+        playQuizFeedback(true);
         renderTrain();
         const wait=playTrainComplete(q);
         setTimeout(()=>{
@@ -279,11 +294,16 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
           setTimeout(()=>{
             if(trainQuestion!==q||activeMode!=='train')return;
             stopTrainPlayback();
+            trainDeparting=false;
+            if(trainStars>=8){
+              trainFinished=true;
+              renderTrain();
+              return;
+            }
             trainQuestion=makeTrainQuestion();
             trainPicked=[];
             trainAnswer=null;
             trainChecked=false;
-            trainDeparting=false;
             trainMessage='依照題目方向選下一個音。';
             trainDragIndex=null;
             renderTrain();
@@ -597,7 +617,7 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
     }
     document.addEventListener('keydown',event=>{if(activeMode!=='shooter'||shooterStatus!=='running')return;if(event.key==='ArrowLeft'){event.preventDefault();changeShooterAim(-1)}if(event.key==='ArrowRight'){event.preventDefault();changeShooterAim(1)}if(event.key===' '||event.key==='Enter'){event.preventDefault();fireShooterBubble()}});
     window.addEventListener('resize',()=>{if(activeMode==='shooter'&&shooterStatus==='running'){renderShooterBoard();updateShooterAim();if(!shooterAnswered&&shooterQuestion&&!reachableShooterNotes().has(shooterQuestion.target))newShooterRound()}});
-    function startTrain(){stopTrainPlayback();trainRevealBag=[];trainQuestion=makeTrainQuestion();trainPicked=[];trainStars=0;trainAnswer=null;trainChecked=false;trainDeparting=false;trainMessage='依照題目方向選下一個音。';trainDragIndex=null;show('train')}
+    function startTrain(){stopTrainPlayback();trainRevealBag=[];trainQuestion=makeTrainQuestion();trainPicked=[];trainStars=0;trainAnswer=null;trainChecked=false;trainDeparting=false;trainFinished=false;trainMessage='依照題目方向選下一個音。';trainDragIndex=null;show('train')}
     document.addEventListener('click',event=>{if(activeMode!=='train')return;const control=event.target.closest('#train-next,#train-up,#train-down,#story-explore,#story-train,#story-quiz,#story-shooter,#home');if(control)stopTrainPlayback()},true);
     document.addEventListener('click',event=>{if(activeMode!=='quiz'||event.target.id!=='check')return;const answeredQuestion=question;setTimeout(()=>{if(activeMode!=='quiz'||question!==answeredQuestion||!checked)return;if(qNo===5){finished=true;renderQuiz();return}qNo++;question=newQuestion();degreeAnswer=null;typeAnswer=null;checked=false;renderQuiz();autoplayQuizHarmony()},1600)},true);
     $('mode-explore').onclick=()=>show('explore');$('mode-train').onclick=startTrain;$('mode-quiz').onclick=startQuiz;$('mode-shooter').onclick=()=>show('shooter');$('home').onclick=()=>show('home');$('mode-back').onclick=()=>show('home');renderExplore();show('home');
