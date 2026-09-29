@@ -253,13 +253,21 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
         return trainPiece(known?value:null,'train-car'+(known?' filled':'')+(next?' next':''),index+1,false);
       }).join('');
       const knownName=q.reverse?notes[q.path[q.degree-1]].name:notes[q.path[0]].name;
-      const instruction=q.reverse
-        ?'右邊已知終點 '+knownName+'。從右往左，按照下行音階接車廂，推回左邊的起點。'
-        :'左邊已知起點 '+knownName+'。從左往右，按照上行音階接車廂，找到右邊的終點。';
+      const instruction=completed
+        ?'車廂順序已完成！現在觀察完整路線，回答這組音程是幾度。'
+        :q.reverse
+          ?'右邊已知終點 '+knownName+'。從右往左，按照下行音階接車廂，推回左邊的起點。'
+          :'左邊已知起點 '+knownName+'。從左往右，按照上行音階接車廂，找到右邊的終點。';
       const countDots=Array.from({length:8},(_,i)=>'<i class="'+(i<trainStars?'on':'')+'"></i>').join('');
       const used=new Set(trainPicked);
       const bank=q.options.map(index=>'<button class="train-note '+(used.has(index)?'used':'')+'" data-note="'+index+'" draggable="'+(!used.has(index))+'" '+(used.has(index)?'disabled':'')+'><b>'+notes[index].name+'</b><small>'+notes[index].letter+'</small></button>').join('');
-      const bankArea=completed?'':''+bankArea+answerArea+'</div>';
+      const bankArea=completed?'':'<div class="train-bank"><p>'+(q.reverse?'從右邊終點旁開始，逐格往左選音。':'從左邊起點旁開始，逐格往右選音。')+'</p><div class="train-bank-items">'+bank+'</div><div class="train-message '+(trainMessage.includes('不')?'wrong':'')+'">'+trainMessage+'</div></div>';
+      const answerArea=completed
+        ?'<div class="train-complete"><b>'+notes[q.path[0]].name+' 到 '+notes[q.path[q.degree-1]].name+' 是幾度？</b><div class="train-answer-grid">'+[1,2,3,4,5,6,7,8].map(d=>'<button data-degree="'+d+'" '+(trainChecked?'disabled':'')+' class="'+(trainAnswer===d?'chosen ':'')+(trainChecked&&d===q.degree?'correct ':'')+(trainChecked&&trainAnswer===d&&d!==q.degree?'wrong':'')+'">'+d+' 度</button>').join('')+'</div>'+(trainChecked?'<p class="train-message '+(trainAnswer===q.degree?'':'wrong')+'">'+(trainAnswer===q.degree?'答對了！示範後火車會開走。':'再想一次，起點和終點都要算。')+'</p>':'')+'</div>'
+        :'';
+      const departureTrain='<div class="train-departure"><span>🚂</span>'+q.path.map(index=>'<span>'+notes[index].name+'</span>').join('')+'</div>';
+      const playbackStatus=trainChecked&&trainAnswer===q.degree?'<div class="train-playback-status">'+(trainDeparting?'🚂 火車正開往終點站':'🎵 正在示範音階，接著火車出發')+'</div>':'';
+      $('train-view').innerHTML='<div class="card train-card'+(trainDeparting?' departing':'')+'"><div class="train-head"><div><span class="tag lime">STEP BY STEP</span><h2>音階小火車</h2></div><span class="train-direction">'+(completed?'回答音程度數':q.reverse?'從終點推回起點 ↓':'從起點找到終點 ↑')+'</span></div><div class="train-intro"><b>🚂 '+(completed?'第二關：數一數音程':'第一關：依照題目方向接車廂')+'</b>'+instruction+'</div><div class="train-progress"><span>完成路線 '+trainStars+' / 8</span>'+countDots+'</div><div class="train-stage"><div class="train-route">'+route+'</div><div class="train-track"></div>'+departureTrain+playbackStatus+'</div>'+bankArea+answerArea+'</div>';
       document.querySelectorAll('.train-note').forEach(button=>{
         button.onclick=()=>addTrainNote(+button.dataset.note);
         button.ondragstart=()=>{trainDragIndex=+button.dataset.note};
