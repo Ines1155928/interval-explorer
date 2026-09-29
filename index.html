@@ -103,11 +103,41 @@
   .shooter-mode-actions button{width:auto;min-width:180px;margin:0}
   .shooter-mode-actions .secondary{background:#ffffff14;color:#fff;border-color:#ffffff55}
   @media(max-width:540px){.shooter-hud{gap:4px;padding:7px}.hud-item{padding:6px 2px}.hud-item b{font-size:16px}.hud-item span{font-size:9px}.bubble-instruction{bottom:79px;font-size:10px}.bubble-danger{bottom:96px}.shooter-controls{font-size:10px;padding:9px}.shooter-controls button{padding:7px 10px}}
-</style><style>.answer-group{margin-top:16px;padding-top:13px;border-top:1px dashed #ddd9e3}.answer-group h3{margin:0 0 8px;color:var(--muted);font-size:14px}.answer-group .answers{padding-top:0;border-top:0}.answer-group .degree-answers{grid-template-columns:repeat(8,1fr)}.compare-staves{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 0 14px}.interval-panel{padding:13px;border:1px solid var(--line);border-radius:16px;background:#fbfafd}.interval-panel.harmony-panel{background:#fff9f7;border-color:#f4ded9}.interval-title{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--dark);font-size:14px;font-weight:900}.interval-title span:last-child{color:var(--muted);font-size:11px;font-weight:800}.harmony-panel .interval-title{color:#b64d43}.interval-panel .staff{height:142px;margin:10px 0 0}.interval-panel .arrow{display:none}.interval-listen{width:100%;margin:10px 0 0;border:0;border-radius:11px;background:var(--purple);color:#fff;padding:10px 12px;font-size:12px;font-weight:900}.harmony-panel .interval-listen{background:var(--coral)}.interval-listen:hover{filter:brightness(.94)}.train-next,#quiz-view #next{display:none!important}@media(max-width:640px){.compare-staves{grid-template-columns:1fr}}@media(max-width:540px){.answer-group .degree-answers{grid-template-columns:repeat(4,1fr)}}</style></head>
+</style><style>.answer-group{margin-top:16px;padding-top:13px;border-top:1px dashed #ddd9e3}.answer-group h3{margin:0 0 8px;color:var(--muted);font-size:14px}.answer-group .answers{padding-top:0;border-top:0}.answer-group .degree-answers{grid-template-columns:repeat(8,1fr)}.compare-staves{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 0 14px}.interval-panel{padding:13px;border:1px solid var(--line);border-radius:16px;background:#fbfafd}.interval-panel.harmony-panel{background:#fff9f7;border-color:#f4ded9}.interval-title{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--dark);font-size:14px;font-weight:900}.interval-title span:last-child{color:var(--muted);font-size:11px;font-weight:800}.harmony-panel .interval-title{color:#b64d43}.interval-panel .staff{height:142px;margin:10px 0 0}.interval-panel .arrow{display:none}.interval-listen{width:100%;margin:10px 0 0;border:0;border-radius:11px;background:var(--purple);color:#fff;padding:10px 12px;font-size:12px;font-weight:900}.harmony-panel .interval-listen{background:var(--coral)}.interval-listen:hover{filter:brightness(.94)}.train-next,#quiz-view #next{display:none!important}@media(max-width:640px){.compare-staves{grid-template-columns:1fr}}@media(max-width:540px){.answer-group .degree-answers{grid-template-columns:repeat(4,1fr)}}<style>
+  .mode-home{max-width:1164px;min-height:calc(100vh - 105px);margin:0 auto;padding:34px 0 70px;display:grid;place-items:center}
+  .mode-home-inner{width:100%}
+  .mode-home-title{text-align:center;margin:0 0 26px}
+  .mode-home-title .tag{margin-bottom:9px}
+  .mode-home-title h1{margin:0;font-size:clamp(29px,4vw,46px);letter-spacing:-.035em}
+  .mode-home-title p{margin:10px auto 0;color:var(--muted);font-size:16px}
+  .mode-home-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .mode-home-card{min-height:230px;border:1px solid var(--line);border-radius:23px;background:#fff;color:var(--ink);padding:23px 19px;text-align:left;box-shadow:0 12px 30px #362b5314;transition:.18s;display:flex;flex-direction:column;align-items:flex-start}
+  .mode-home-card:hover{transform:translateY(-5px);border-color:#cdbfe8;box-shadow:0 17px 35px #362b5324}
+  .mode-home-card .mode-icon{display:grid;place-items:center;width:58px;height:58px;border-radius:18px;background:var(--soft);color:var(--purple);font-size:30px;margin-bottom:22px}
+  .mode-home-card:nth-child(2) .mode-icon{background:#fff0e9;color:var(--coral)}
+  .mode-home-card:nth-child(3) .mode-icon{background:#e2f8fb;color:#138998}
+  .mode-home-card:nth-child(4) .mode-icon{background:#fff8db;color:#9b7920}
+  .mode-home-card h2{margin:0;font-size:20px}
+  .mode-home-card p{margin:8px 0 0;color:var(--muted);font-size:13px;line-height:1.65}
+  .mode-home-card .mode-arrow{margin-top:auto;padding-top:19px;color:var(--purple);font-size:22px;font-weight:900}
+  @media(max-width:850px){.mode-home{padding-inline:18px}.mode-home-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:540px){.mode-home{padding:24px 18px 45px}.mode-home-grid{grid-template-columns:1fr}.mode-home-card{min-height:155px;padding:18px}.mode-home-card .mode-icon{margin-bottom:13px;width:48px;height:48px;font-size:24px}}
+</style></style></head>
 <body>
   <header class="topbar"><button class="brand" id="home"><span class="mark">♪</span><span>音程探險家</span></button><div class="mission"><span id="mission-label">今天的任務</span><b id="mission-value">認識「度」</b></div></header>
-  <section class="hero"><div><p class="eyebrow">INTERVAL LAB · 五年級音樂</p><h1>兩個音，有多遠？</h1><p class="hero-copy">音樂祭的舞台正在等待你！選兩個音符、聽一聽，再沿著音階數數看。記得：<strong>起點和終點都要算！</strong></p></div><div class="scene" aria-hidden="true"><div class="scene-sky"><span class="floating-note note-a">♫</span><span class="floating-note note-b">♩</span><span class="music-star star-one">Do</span><span class="music-star star-two">Sol</span></div><div class="stage-floor"></div><span class="scene-label">完成任務，點亮舞台！</span></div></section>
-  <section class="story-strip" aria-label="任務選擇"><button class="story-card" id="story-explore"><span class="story-icon">♩</span><span><b>音符階梯練習場</b><small>自由選音，觀察音符的距離</small></span><span class="story-go">→</span></button><button class="story-card" id="story-train"><span class="story-icon">🚂</span><span><b>音階小火車</b><small>慢慢接對音符車廂，再數音程</small></span><span class="story-go">→</span></button><button class="story-card" id="story-quiz"><span class="story-icon">★</span><span><b>音樂祭舞台挑戰</b><small>完成 5 題任務，點亮整座舞台</small></span><span class="story-go">→</span></button><button class="story-card" id="story-shooter"><span class="story-icon">🫧</span><span><b>音程泡泡龍</b><small>瞄準唱名泡泡，湊三顆消除</small></span><span class="story-go">→</span></button></section>
+  <section id="mode-home" class="mode-home">
+    <div class="mode-home-inner">
+      <div class="mode-home-title"><span class="tag">INTERVAL LAB · 五年級音樂</span><h1>選擇今天的音程任務</h1><p>選一個模式開始練習，進入後會使用完整畫面。</p></div>
+      <div class="mode-home-grid">
+        <button class="mode-home-card" id="mode-explore"><span class="mode-icon">♩</span><h2>自由探索</h2><p>選擇兩個音符，觀察曲調音程與和聲音程。</p><span class="mode-arrow">開始探索 →</span></button>
+        <button class="mode-home-card" id="mode-train"><span class="mode-icon">🚂</span><h2>音階小火車</h2><p>依照音階順序接車廂，再自己數出音程度數。</p><span class="mode-arrow">開始接車廂 →</span></button>
+        <button class="mode-home-card" id="mode-quiz"><span class="mode-icon">★</span><h2>舞台挑戰</h2><p>同時判斷曲調或和聲，以及音程是幾度。</p><span class="mode-arrow">開始挑戰 →</span></button>
+        <button class="mode-home-card" id="mode-shooter"><span class="mode-icon">🫧</span><h2>音程泡泡龍</h2><p>瞄準唱名泡泡，答對並湊滿三顆就能消除。</p><span class="mode-arrow">開始遊戲 →</span></button>
+      </div>
+    </div>
+  </section>
+  <section class="hero hidden" id="hero"><div><p class="eyebrow">INTERVAL LAB · 五年級音樂</p><h1>兩個音，有多遠？</h1><p class="hero-copy">音樂祭的舞台正在等待你！選兩個音符、聽一聽，再沿著音階數數看。記得：<strong>起點和終點都要算！</strong></p></div><div class="scene" aria-hidden="true"><div class="scene-sky"><span class="floating-note note-a">♫</span><span class="floating-note note-b">♩</span><span class="music-star star-one">Do</span><span class="music-star star-two">Sol</span></div><div class="stage-floor"></div><span class="scene-label">完成任務，點亮舞台！</span></div></section>
+  <section class="story-strip hidden" id="story-strip" aria-label="任務選擇"><button class="story-card" id="story-explore"><span class="story-icon">♩</span><span><b>音符階梯練習場</b><small>自由選音，觀察音符的距離</small></span><span class="story-go">→</span></button><button class="story-card" id="story-train"><span class="story-icon">🚂</span><span><b>音階小火車</b><small>慢慢接對音符車廂，再數音程</small></span><span class="story-go">→</span></button><button class="story-card" id="story-quiz"><span class="story-icon">★</span><span><b>音樂祭舞台挑戰</b><small>完成 5 題任務，點亮整座舞台</small></span><span class="story-go">→</span></button><button class="story-card" id="story-shooter"><span class="story-icon">🫧</span><span><b>音程泡泡龍</b><small>瞄準唱名泡泡，湊三顆消除</small></span><span class="story-go">→</span></button></section>
   <section class="workspace" id="explore-view">
     <div class="card"><div class="heading explore-heading"><div><span class="tag">STEP 1</span><h2>選擇兩個音符</h2></div><aside class="explore-result" aria-live="polite"><div class="explore-result-head"><span class="tag lime">STEP 2</span><strong>一起數音程</strong><span class="pair" id="pair">Do → Sol</span></div><div class="count-flow"><div class="count-route"><div class="path" id="path"></div></div><div class="count-answer"><span>共</span><b id="degree">5</b><span>度</span></div></div><p class="count-hint" id="explain"></p></aside></div><div class="compare-staves"><section class="interval-panel"><div class="interval-title"><span>曲調音程</span><span>先後播放</span></div><div id="explore-melody"></div><button class="interval-listen" id="play-melody">▶ 播放曲調音程</button></section><section class="interval-panel harmony-panel"><div class="interval-title"><span>和聲音程</span><span>同時播放</span></div><div id="explore-harmony"></div><button class="interval-listen" id="play-harmony">▶ 播放和聲音程</button></section></div><div class="pickers"><fieldset><legend><span>1</span>第一個音</legend><div class="notes" id="first-notes"></div></fieldset><fieldset><legend><span>2</span>第二個音</legend><div class="notes" id="second-notes"></div></fieldset></div></div>
   </section>
@@ -522,6 +552,7 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
         shooterMisses++;shooterCombo=0;
         if(shooterMode==='timed')shooterTime=Math.max(0,shooterTime-3);
       }
+      const allCleared=correct&&!shooterBoard.some(cell=>!cell.gray);if(allCleared){shooterBoard=[];shooterPoints+=50;finishShooter('太棒了！全部泡泡都消除了！');return}
       renderShooterBoard();updateShooterHud();
       const feedback=$('shooter-feedback');feedback.className='shooter-feedback '+(correct?'good':'bad');
       $('shooter-question').textContent='本題已作答 · 下一題準備中…';
@@ -548,13 +579,29 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
       $('mission-label').textContent='挑戰完成';$('mission-value').textContent=`${shooterPoints} 分`;
     }
     function resetShooter(){clearShooterTimers();shooterStatus='ready';shooterQuestion=null;shooterAnswered=false}
-    function show(mode){if(activeMode==='shooter'&&mode!=='shooter'&&shooterStatus==='running')resetShooter();activeMode=mode;const quiz=mode==='quiz',train=mode==='train',shooter=mode==='shooter';$('explore-view').classList.toggle('hidden',quiz||train||shooter);$('quiz-view').classList.toggle('hidden',!quiz);$('train-view').classList.toggle('hidden',!train);$('shooter-view').classList.toggle('hidden',!shooter);if(train){if(!trainQuestion){trainQuestion=makeTrainQuestion();trainPicked=[];trainMessage='先找下一個音符車廂。'}renderTrain();$('mission-label').textContent='基礎練習';$('mission-value').textContent='音階順序'}else if(shooter){renderShooter();if(shooterStatus==='ready'){$('mission-label').textContent='自由瞄準';$('mission-value').textContent='選擇模式'}}else if(!quiz){$('mission-label').textContent='今天的任務';$('mission-value').textContent='認識「度」'}}
+    function show(mode){
+      if(activeMode==='shooter'&&mode!=='shooter'&&shooterStatus==='running')resetShooter();
+      activeMode=mode;
+      const home=mode==='home',quiz=mode==='quiz',train=mode==='train',shooter=mode==='shooter';
+      $('mode-home').classList.toggle('hidden',!home);
+      $('hero').classList.toggle('hidden',home);
+      $('story-strip').classList.toggle('hidden',home);
+      $('explore-view').classList.toggle('hidden',home||quiz||train||shooter);
+      $('quiz-view').classList.toggle('hidden',!quiz);
+      $('train-view').classList.toggle('hidden',!train);
+      $('shooter-view').classList.toggle('hidden',!shooter);
+      if(home){$('mission-label').textContent='選擇模式';$('mission-value').textContent='開始練習';return}
+      if(train){if(!trainQuestion){trainQuestion=makeTrainQuestion();trainPicked=[];trainMessage='先找下一個音符車廂。'}renderTrain();$('mission-label').textContent='基礎練習';$('mission-value').textContent='音階順序'}
+      else if(shooter){renderShooter();if(shooterStatus==='ready'){$('mission-label').textContent='自由瞄準';$('mission-value').textContent='選擇模式'}}
+      else if(quiz){$('mission-label').textContent='舞台挑戰';$('mission-value').textContent='雙重判斷'}
+      else {$('mission-label').textContent='自由探索';$('mission-value').textContent='認識「度」'}
+    }
     document.addEventListener('keydown',event=>{if(activeMode!=='shooter'||shooterStatus!=='running')return;if(event.key==='ArrowLeft'){event.preventDefault();changeShooterAim(-1)}if(event.key==='ArrowRight'){event.preventDefault();changeShooterAim(1)}if(event.key===' '||event.key==='Enter'){event.preventDefault();fireShooterBubble()}});
     window.addEventListener('resize',()=>{if(activeMode==='shooter'&&shooterStatus==='running'){renderShooterBoard();updateShooterAim();if(!shooterAnswered&&shooterQuestion&&!reachableShooterNotes().has(shooterQuestion.target))newShooterRound()}});
     function startTrain(){stopTrainPlayback();trainRevealBag=[];trainQuestion=makeTrainQuestion();trainPicked=[];trainStars=0;trainAnswer=null;trainChecked=false;trainDeparting=false;trainMessage='依照題目方向選下一個音。';trainDragIndex=null;show('train')}
     document.addEventListener('click',event=>{if(activeMode!=='train')return;const control=event.target.closest('#train-next,#train-up,#train-down,#story-explore,#story-train,#story-quiz,#story-shooter,#home');if(control)stopTrainPlayback()},true);
     document.addEventListener('click',event=>{if(activeMode!=='quiz'||event.target.id!=='check')return;const answeredQuestion=question;setTimeout(()=>{if(activeMode!=='quiz'||question!==answeredQuestion||!checked)return;if(qNo===5){finished=true;renderQuiz();return}qNo++;question=newQuestion();degreeAnswer=null;typeAnswer=null;checked=false;renderQuiz();autoplayQuizHarmony()},1600)},true);
-    $('story-explore').onclick=()=>show('explore');$('story-train').onclick=startTrain;$('story-quiz').onclick=startQuiz;$('story-shooter').onclick=()=>show('shooter');$('home').onclick=()=>show('explore');renderExplore();
+    $('mode-explore').onclick=()=>show('explore');$('mode-train').onclick=startTrain;$('mode-quiz').onclick=startQuiz;$('mode-shooter').onclick=()=>show('shooter');$('story-explore').onclick=()=>show('explore');$('story-train').onclick=startTrain;$('story-quiz').onclick=startQuiz;$('story-shooter').onclick=()=>show('shooter');$('home').onclick=()=>show('home');renderExplore();show('home');
   </script>
 </body>
 </html>
