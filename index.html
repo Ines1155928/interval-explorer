@@ -139,7 +139,57 @@
   #shooter-view:after{background-position:100% 100%}
   @media(max-width:850px){.mode-art{width:calc(100% + 38px)}#explore-view:after,#quiz-view:after,#train-view:after,#shooter-view:after{width:180px;right:24px;opacity:.08}}
   @media(max-width:540px){.hero{background-position:center,58% top}.mode-art{width:calc(100% + 36px);margin:-18px -18px 14px}#explore-view:after,#quiz-view:after,#train-view:after,#shooter-view:after{display:none}}
-</style></head>
+</style>
+  <style>
+    .mode-home-grid{grid-template-columns:repeat(5,minmax(0,1fr))}
+    .mode-art-battle{background-image:url('assets/storybook-battle.png');background-size:cover;background-position:center}
+    .mode-home-card:nth-child(5) .mode-icon{background:#eef0ff;color:#4253a8}
+    .battle-shell{max-width:1164px;margin:0 auto 50px;padding:0 18px}
+    .battle-board{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;padding:18px;border:1px solid #dcd7eb;border-radius:26px;overflow:hidden;background:linear-gradient(#fffdf9e8,#fffdf9f5),url('assets/storybook-battle.png') center/cover;box-shadow:0 18px 45px #3529531a}
+    .battle-round{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:14px;text-align:center}
+    .battle-round h2{margin:0;font-size:clamp(19px,2.2vw,28px)}
+    .battle-round .tag{white-space:nowrap}
+    .battle-player{position:relative;min-width:0;padding:17px;border:2px solid;border-radius:22px;background:#fffffff2;text-align:center;transition:.2s}
+    .battle-player.one{border-color:#8d6ada;box-shadow:inset 0 6px #7650cf}
+    .battle-player.two{border-color:#ff8b80;box-shadow:inset 0 6px #ff746d}
+    .battle-player.blocked{opacity:.58;transform:scale(.985)}
+    .battle-player-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+    .battle-player-name{font-size:clamp(17px,2vw,23px);font-weight:950}
+    .battle-score{display:flex;align-items:baseline;gap:5px;font-weight:850;color:var(--muted)}
+    .battle-score b{font-size:clamp(31px,4vw,48px);line-height:1;color:var(--purple)}
+    .battle-player.two .battle-score b{color:#e9534d}
+    .battle-question{margin:5px 0 8px;font-size:clamp(18px,2.2vw,26px);font-weight:950}
+    .battle-question small{display:block;margin-top:3px;color:var(--muted);font-size:11px}
+    .battle-staff .staff{height:132px;margin:0;border-radius:17px}
+    .battle-listen{margin:8px auto 10px;padding:8px 15px;border:1px solid #d9d2e7;border-radius:999px;background:#fff;color:var(--purple);font-weight:850}
+    .battle-answer-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+    .battle-answer-grid button{min-height:56px;border:1px solid #dcd7e7;border-radius:13px;background:#fff;color:var(--ink);font-size:20px;font-weight:950;box-shadow:0 3px 0 #e7e2ed;touch-action:manipulation}
+    .battle-player.one .battle-answer-grid button:active{background:#eee8ff;border-color:#7650cf;transform:translateY(2px);box-shadow:none}
+    .battle-player.two .battle-answer-grid button:active{background:#fff0ed;border-color:#ff746d;transform:translateY(2px);box-shadow:none}
+    .battle-answer-grid button:disabled{cursor:not-allowed}
+    .battle-message{min-height:25px;margin:10px 0 0;font-size:14px;font-weight:900}
+    .battle-message.good{color:#15846e}.battle-message.bad{color:#c84b45}
+    .battle-finish{max-width:760px;margin:0 auto;padding:28px;text-align:center;border:1px solid var(--line);border-radius:26px;background:linear-gradient(#fffffff0,#fffffff7),url('assets/storybook-battle.png') center/cover;box-shadow:0 18px 45px #3529531a}
+    .battle-finish h2{margin:8px 0;font-size:clamp(30px,5vw,52px)}
+    .battle-final-score{margin:14px 0;font-size:clamp(38px,7vw,72px);font-weight:950;color:var(--purple)}
+    .battle-actions{display:flex;justify-content:center;gap:12px;margin-top:18px}
+    .battle-actions button{min-height:50px;padding:0 22px;border-radius:14px;font-size:16px;font-weight:900}
+    .battle-actions .restart{border:0;background:var(--purple);color:#fff}
+    .battle-actions .back{border:1px solid var(--line);background:#fff;color:var(--ink)}
+    #battle-view{position:relative}
+    @media(max-width:1050px){.mode-home-grid{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:850px){.mode-home-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:700px){
+      .battle-shell{padding:0 8px}.battle-board{gap:7px;padding:9px;border-radius:18px}
+      .battle-round{gap:7px}.battle-player{padding:10px 7px;border-radius:16px}
+      .battle-player-head{align-items:flex-start}.battle-score{display:block}.battle-score b{display:block}
+      .battle-staff .staff{height:112px}.battle-answer-grid{gap:5px}
+      .battle-answer-grid button{min-height:48px;font-size:17px;border-radius:10px}
+      .battle-listen{font-size:12px;padding:7px 10px}.battle-message{font-size:12px}
+    }
+    @media(max-width:540px){.mode-home-grid{grid-template-columns:1fr}.battle-question small{display:none}.battle-player-name{font-size:16px}.battle-round h2{font-size:17px}}
+  </style>
+</head>
 <body>
   <header class="topbar"><button class="brand" id="home"><span class="mark">♪</span><span>音程探險家</span></button><button class="mode-back hidden" id="mode-back">← 模式選擇</button><div class="mission"><span id="mission-label">今天的任務</span><b id="mission-value">認識「度」</b></div></header>
   
@@ -152,6 +202,7 @@
         <button class="mode-home-card" id="mode-train"><span class="mode-art mode-art-train" aria-hidden="true"></span><h2>音階小火車</h2><p>依照音階順序接車廂，再自己數出音程度數。</p><span class="mode-arrow">開始接車廂 →</span></button>
         <button class="mode-home-card" id="mode-quiz"><span class="mode-art mode-art-quiz" aria-hidden="true"></span><h2>舞台挑戰</h2><p>同時判斷曲調或和聲，以及音程是幾度。</p><span class="mode-arrow">開始挑戰 →</span></button>
         <button class="mode-home-card" id="mode-shooter"><span class="mode-art mode-art-shooter" aria-hidden="true"></span><h2>音程泡泡龍</h2><p>瞄準唱名泡泡，答對並湊滿三顆就能消除。</p><span class="mode-arrow">開始遊戲 →</span></button>
+        <button class="mode-home-card" id="mode-battle"><span class="mode-art mode-art-battle" aria-hidden="true"></span><h2>雙人音程對戰</h2><p>左右同時搶答，先得到 5 分的玩家獲勝。</p><span class="mode-arrow">開始對戰 →</span></button>
       </div>
     </div>
   </section>
@@ -161,12 +212,14 @@
   <section class="workspace hidden" id="quiz-view"></section>
   <section class="train-shell hidden" id="train-view"></section>
   <section class="shooter-shell hidden" id="shooter-view"></section>
+  <section class="battle-shell hidden" id="battle-view"></section>
   <script>
     const notes=[{id:'c4',letter:'C',name:'Do',midi:60,step:-2},{id:'d4',letter:'D',name:'Re',midi:62,step:-1},{id:'e4',letter:'E',name:'Mi',midi:64,step:0},{id:'f4',letter:'F',name:'Fa',midi:65,step:1},{id:'g4',letter:'G',name:'Sol',midi:67,step:2},{id:'a4',letter:'A',name:'La',midi:69,step:3},{id:'b4',letter:'B',name:'Si',midi:71,step:4},{id:'c5',letter:'C',name:'高音 Do',midi:72,step:5}];
     const $=id=>document.getElementById(id);let first=0,second=4,isHarmony=false,question={a:1,b:4,h:false,kind:'degree'},qNo=1,answer=null,checked=false,score=0,finished=false,activeMode='home',quizPlan=[],quizQuestionIndex=0;
     const touchInput=matchMedia('(pointer:coarse)').matches||navigator.maxTouchPoints>0;
     let shooterStatus='ready',shooterMode='practice',shooterTime=60,shooterScore=0,shooterPoints=0,shooterPopped=0,shooterMisses=0,shooterCombo=0,shooterBest=0,shooterRound=0,shooterQuestion=null,shooterAnswered=false,shooterTick=null,shooterNextTimer=null,shooterAnimation=null,shooterBoard=[],shooterTypes=[],shooterShots=0,shooterPhase=0,shooterAimAngle=-Math.PI/2,shooterPointerId=null,shooterFinishReason='';
     let trainDirection='up',trainQuestion=null,trainPicked=[],trainStars=0,trainAnswer=null,trainChecked=false,trainMessage='',trainDragIndex=null,trainDeparting=false,trainFinished=false,trainPlaybackTimers=[],trainPlaybackContexts=[];
+    let battleScore=[0,0],battleQuestion=null,battleLocked=false,battleBlocked=[false,false],battleMessage=['',''],battleWinner=null,battleRound=1,battleUnlockTimers=[null,null],battleNextTimer=null;
     function tone(midi,start,duration,ctx,target=ctx.destination){const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.value=440*Math.pow(2,(midi-69)/12);g.gain.setValueAtTime(.0001,start);g.gain.exponentialRampToValueAtTime(.36,start+.025);g.gain.exponentialRampToValueAtTime(.0001,start+duration);o.connect(g).connect(target);o.start(start);o.stop(start+duration+.05)}
     function makeReverb(ctx){const seconds=2.7,length=Math.floor(ctx.sampleRate*seconds),buffer=ctx.createBuffer(2,length,ctx.sampleRate);for(let channel=0;channel<2;channel++){const data=buffer.getChannelData(channel);for(let i=0;i<length;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/length,2.7)}const convolver=ctx.createConvolver();convolver.buffer=buffer;return convolver}
     function closeAudioContext(ctx){if(ctx&&ctx.state!=='closed')ctx.close().catch(()=>{})}
@@ -624,20 +677,102 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
       $('mission-label').textContent='挑戰完成';$('mission-value').textContent=`${shooterPoints} 分`;
     }
     function resetShooter(){clearShooterTimers();shooterStatus='ready';shooterQuestion=null;shooterAnswered=false}
+
+    function makeBattleQuestion(){
+      const a=Math.floor(Math.random()*notes.length),b=Math.floor(Math.random()*notes.length);
+      return {a,b,degree:Math.abs(a-b)+1};
+    }
+    function clearBattleTimers(){
+      battleUnlockTimers.forEach(timer=>timer&&clearTimeout(timer));
+      battleUnlockTimers=[null,null];
+      if(battleNextTimer)clearTimeout(battleNextTimer);
+      battleNextTimer=null;
+    }
+    function resetBattle(){
+      clearBattleTimers();
+      battleScore=[0,0];battleQuestion=null;battleLocked=false;battleBlocked=[false,false];
+      battleMessage=['',''];battleWinner=null;battleRound=1;
+    }
+    function startBattle(){
+      resetBattle();
+      battleQuestion=makeBattleQuestion();
+      show('battle');
+    }
+    function renderBattle(){
+      if(!battleQuestion)battleQuestion=makeBattleQuestion();
+      if(battleWinner!==null){
+        const winner=battleWinner===0?'玩家一':'玩家二';
+        $('battle-view').innerHTML=`<div class="battle-finish"><span class="tag lime">BATTLE COMPLETE</span><h2>🏆 ${winner}獲勝！</h2><div class="battle-final-score">${battleScore[0]} ： ${battleScore[1]}</div><p>兩位玩家都完成了精彩的音程挑戰！</p><div class="battle-actions"><button class="back" id="battle-home">返回模式選擇</button><button class="restart" id="battle-restart">再比一場</button></div></div>`;
+        $('battle-home').onclick=()=>show('home');
+        $('battle-restart').onclick=startBattle;
+        return;
+      }
+      const q=battleQuestion;
+      const playerPanel=p=>{
+        const side=p===0?'one':'two',name=p===0?'玩家一':'玩家二';
+        const buttons=[1,2,3,4,5,6,7,8].map(d=>`<button data-player="${p}" data-degree="${d}" ${battleLocked||battleBlocked[p]?'disabled':''}>${d} 度</button>`).join('');
+        const message=battleMessage[p];
+        const messageClass=message.includes('答對')?'good':message?'bad':'';
+        return `<section class="battle-player ${side} ${battleBlocked[p]?'blocked':''}" id="battle-player-${p}"><div class="battle-player-head"><span class="battle-player-name">${p===0?'🟣':'🟠'} ${name}</span><span class="battle-score"><b>${battleScore[p]}</b> 分</span></div><div class="battle-question">${notes[q.a].name} → ${notes[q.b].name}<small>起點和終點都要算</small></div><div class="battle-staff">${staff(notes[q.a],notes[q.b],false,true)}</div><button class="battle-listen" data-listen="${p}">▶ 播放題目</button><div class="battle-answer-grid">${buttons}</div><p class="battle-message ${messageClass}" aria-live="polite">${message||'請選擇音程度數'}</p></section>`;
+      };
+      $('battle-view').innerHTML=`<div class="battle-board"><div class="battle-round"><span class="tag">ROUND ${battleRound}</span><h2>看樂譜搶答：這是幾度音程？</h2></div>${playerPanel(0)}${playerPanel(1)}</div>`;
+      $('battle-view').querySelectorAll('[data-degree]').forEach(button=>button.onclick=()=>answerBattle(+button.dataset.player,+button.dataset.degree));
+      $('battle-view').querySelectorAll('[data-listen]').forEach(button=>button.onclick=()=>{const p=+button.dataset.listen;play(notes[q.a],notes[q.b],false,`#battle-player-${p}`)});
+    }
+    function answerBattle(player,degree){
+      if(activeMode!=='battle'||battleWinner!==null||battleLocked||battleBlocked[player])return;
+      if(degree!==battleQuestion.degree){
+        battleBlocked[player]=true;
+        battleMessage[player]='再算一次！稍後可以重答';
+        playQuizFeedback(false);
+        renderBattle();
+        battleUnlockTimers[player]=setTimeout(()=>{
+          if(activeMode!=='battle'||battleWinner!==null||battleLocked)return;
+          battleBlocked[player]=false;
+          battleMessage[player]='可以再回答了！';
+          renderBattle();
+        },850);
+        return;
+      }
+      clearBattleTimers();
+      battleLocked=true;
+      battleScore[player]++;
+      battleMessage[player]='答對了！獲得 1 分';
+      battleMessage[1-player]='這題由對手先答對';
+      playQuizFeedback(true);
+      if(battleScore[player]>=5){
+        battleWinner=player;
+        renderBattle();
+        return;
+      }
+      renderBattle();
+      battleNextTimer=setTimeout(()=>{
+        if(activeMode!=='battle')return;
+        battleQuestion=makeBattleQuestion();
+        battleLocked=false;
+        battleBlocked=[false,false];
+        battleMessage=['',''];
+        battleRound++;
+        renderBattle();
+      },1200);
+    }
     function show(mode){
       if(activeMode==='shooter'&&mode!=='shooter'&&shooterStatus==='running')resetShooter();
+      if(activeMode==='battle'&&mode!=='battle')resetBattle();
       activeMode=mode;
-      const home=mode==='home',quiz=mode==='quiz',train=mode==='train',shooter=mode==='shooter';
+      const home=mode==='home',quiz=mode==='quiz',train=mode==='train',shooter=mode==='shooter',battle=mode==='battle';
       $('mode-home').classList.toggle('hidden',!home);
       $('mode-back').classList.toggle('hidden',home);
       $('hero').classList.toggle('hidden',!home);
-      $('explore-view').classList.toggle('hidden',home||quiz||train||shooter);
+      $('explore-view').classList.toggle('hidden',home||quiz||train||shooter||battle);
       $('quiz-view').classList.toggle('hidden',!quiz);
       $('train-view').classList.toggle('hidden',!train);
       $('shooter-view').classList.toggle('hidden',!shooter);
+      $('battle-view').classList.toggle('hidden',!battle);
       if(home){$('mission-label').textContent='選擇模式';$('mission-value').textContent='開始練習';return}
       if(train){if(!trainQuestion){trainQuestion=makeTrainQuestion();trainPicked=[];trainMessage='先找下一個音符車廂。'}renderTrain();$('mission-label').textContent='基礎練習';$('mission-value').textContent='音階順序'}
       else if(shooter){renderShooter();if(shooterStatus==='ready'){$('mission-label').textContent='自由瞄準';$('mission-value').textContent='選擇模式'}}
+      else if(battle){renderBattle();$('mission-label').textContent='雙人對戰';$('mission-value').textContent='先得 5 分獲勝'}
       else if(quiz){$('mission-label').textContent='舞台挑戰';$('mission-value').textContent='雙重判斷'}
       else {$('mission-label').textContent='自由探索';$('mission-value').textContent='認識「度」'}
     }
@@ -646,7 +781,7 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
     function startTrain(){stopTrainPlayback();trainRevealBag=[];trainQuestion=makeTrainQuestion();trainPicked=[];trainStars=0;trainAnswer=null;trainChecked=false;trainDeparting=false;trainFinished=false;trainMessage='依照題目方向選下一個音。';trainDragIndex=null;show('train')}
     document.addEventListener('click',event=>{if(activeMode!=='train')return;const control=event.target.closest('#train-next,#train-up,#train-down,#story-explore,#story-train,#story-quiz,#story-shooter,#home');if(control)stopTrainPlayback()},true);
     document.addEventListener('click',event=>{if(activeMode!=='quiz'||event.target.id!=='check')return;const answeredQuestion=question;setTimeout(()=>{if(activeMode!=='quiz'||question!==answeredQuestion||!checked)return;if(qNo===5){finished=true;renderQuiz();return}qNo++;question=newQuestion();degreeAnswer=null;typeAnswer=null;checked=false;renderQuiz();autoplayQuizHarmony()},1600)},true);
-    $('mode-explore').onclick=()=>show('explore');$('mode-train').onclick=startTrain;$('mode-quiz').onclick=startQuiz;$('mode-shooter').onclick=()=>show('shooter');$('home').onclick=()=>show('home');$('mode-back').onclick=()=>show('home');renderExplore();show('home');
+    $('mode-explore').onclick=()=>show('explore');$('mode-train').onclick=startTrain;$('mode-quiz').onclick=startQuiz;$('mode-shooter').onclick=()=>show('shooter');$('mode-battle').onclick=startBattle;$('home').onclick=()=>show('home');$('mode-back').onclick=()=>show('home');renderExplore();show('home');
   </script>
 </body>
 </html>
