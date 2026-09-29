@@ -103,8 +103,7 @@
   .shooter-mode-actions button{width:auto;min-width:180px;margin:0}
   .shooter-mode-actions .secondary{background:#ffffff14;color:#fff;border-color:#ffffff55}
   @media(max-width:540px){.shooter-hud{gap:4px;padding:7px}.hud-item{padding:6px 2px}.hud-item b{font-size:16px}.hud-item span{font-size:9px}.bubble-instruction{bottom:79px;font-size:10px}.bubble-danger{bottom:96px}.shooter-controls{font-size:10px;padding:9px}.shooter-controls button{padding:7px 10px}}
-</style><style>.answer-group{margin-top:16px;padding-top:13px;border-top:1px dashed #ddd9e3}.answer-group h3{margin:0 0 8px;color:var(--muted);font-size:14px}.answer-group .answers{padding-top:0;border-top:0}.answer-group .degree-answers{grid-template-columns:repeat(8,1fr)}.compare-staves{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 0 14px}.interval-panel{padding:13px;border:1px solid var(--line);border-radius:16px;background:#fbfafd}.interval-panel.harmony-panel{background:#fff9f7;border-color:#f4ded9}.interval-title{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--dark);font-size:14px;font-weight:900}.interval-title span:last-child{color:var(--muted);font-size:11px;font-weight:800}.harmony-panel .interval-title{color:#b64d43}.interval-panel .staff{height:142px;margin:10px 0 0}.interval-panel .arrow{display:none}.interval-listen{width:100%;margin:10px 0 0;border:0;border-radius:11px;background:var(--purple);color:#fff;padding:10px 12px;font-size:12px;font-weight:900}.harmony-panel .interval-listen{background:var(--coral)}.interval-listen:hover{filter:brightness(.94)}.train-next,#quiz-view #next{display:none!important}@media(max-width:640px){.compare-staves{grid-template-columns:1fr}}@media(max-width:540px){.answer-group .degree-answers{grid-template-columns:repeat(4,1fr)}}<style>
-  .mode-home{max-width:1164px;min-height:calc(100vh - 105px);margin:0 auto;padding:34px 0 70px;display:grid;place-items:center}
+</style><style>.answer-group{margin-top:16px;padding-top:13px;border-top:1px dashed #ddd9e3}.answer-group h3{margin:0 0 8px;color:var(--muted);font-size:14px}.answer-group .answers{padding-top:0;border-top:0}.answer-group .degree-answers{grid-template-columns:repeat(8,1fr)}.compare-staves{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 0 14px}.interval-panel{padding:13px;border:1px solid var(--line);border-radius:16px;background:#fbfafd}.interval-panel.harmony-panel{background:#fff9f7;border-color:#f4ded9}.interval-title{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--dark);font-size:14px;font-weight:900}.interval-title span:last-child{color:var(--muted);font-size:11px;font-weight:800}.harmony-panel .interval-title{color:#b64d43}.interval-panel .staff{height:142px;margin:10px 0 0}.interval-panel .arrow{display:none}.interval-listen{width:100%;margin:10px 0 0;border:0;border-radius:11px;background:var(--purple);color:#fff;padding:10px 12px;font-size:12px;font-weight:900}.harmony-panel .interval-listen{background:var(--coral)}.interval-listen:hover{filter:brightness(.94)}.train-next,#quiz-view #next{display:none!important}@media(max-width:640px){.compare-staves{grid-template-columns:1fr}}@media(max-width:540px){.answer-group .degree-answers{grid-template-columns:repeat(4,1fr)}}.mode-home{max-width:1164px;min-height:calc(100vh - 105px);margin:0 auto;padding:34px 0 70px;display:grid;place-items:center}
   .mode-home-inner{width:100%}
   .mode-home-title{text-align:center;margin:0 0 26px}
   .mode-home-title .tag{margin-bottom:9px}
@@ -122,10 +121,10 @@
   .mode-home-card .mode-arrow{margin-top:auto;padding-top:19px;color:var(--purple);font-size:22px;font-weight:900}
   @media(max-width:850px){.mode-home{padding-inline:18px}.mode-home-grid{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:540px){.mode-home{padding:24px 18px 45px}.mode-home-grid{grid-template-columns:1fr}.mode-home-card{min-height:155px;padding:18px}.mode-home-card .mode-icon{margin-bottom:13px;width:48px;height:48px;font-size:24px}}
-</style></style></head>
+</style></head>
 <body>
   <header class="topbar"><button class="brand" id="home"><span class="mark">♪</span><span>音程探險家</span></button><div class="mission"><span id="mission-label">今天的任務</span><b id="mission-value">認識「度」</b></div></header>
-  <section class="hero hidden" id="hero"><div><p class="eyebrow">INTERVAL LAB · 五年級音樂</p><h1>兩個音，有多遠？</h1><p class="hero-copy">音樂祭的舞台正在等待你！選兩個音符、聽一聽，再沿著音階數數看。記得：<strong>起點和終點都要算！</strong></p></div><div class="scene" aria-hidden="true"><div class="scene-sky"><span class="floating-note note-a">♫</span><span class="floating-note note-b">♩</span><span class="music-star star-one">Do</span><span class="music-star star-two">Sol</span></div><div class="stage-floor"></div><span class="scene-label">完成任務，點亮舞台！</span></div></section>
+  
   <section id="mode-home" class="mode-home">
     <div class="mode-home-inner">
       <div class="mode-home-title"><span class="tag">INTERVAL LAB · 五年級音樂</span><h1>選擇今天的音程任務</h1><p>選一個模式開始練習，進入後會使用完整畫面。</p></div>
@@ -583,7 +582,6 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
       activeMode=mode;
       const home=mode==='home',quiz=mode==='quiz',train=mode==='train',shooter=mode==='shooter';
       $('mode-home').classList.toggle('hidden',!home);
-      $('hero').classList.toggle('hidden',!home);
       $('story-strip').classList.toggle('hidden',!home);
       $('explore-view').classList.toggle('hidden',home||quiz||train||shooter);
       $('quiz-view').classList.toggle('hidden',!quiz);
