@@ -125,6 +125,7 @@
 <body>
   <header class="topbar"><button class="brand" id="home"><span class="mark">♪</span><span>音程探險家</span></button><button class="mode-back hidden" id="mode-back">← 模式選擇</button><div class="mission"><span id="mission-label">今天的任務</span><b id="mission-value">認識「度」</b></div></header>
   
+  <section class="hero" id="hero"><div><p class="eyebrow">INTERVAL LAB · 五年級音樂</p><h1>兩個音，有多遠？</h1><p class="hero-copy">音樂祭的舞台正在等待你！選擇一個練習模式，動手操作、聽一聽，再沿著音階數數看。記得：<strong>起點和終點都要算！</strong></p></div><div class="scene" aria-hidden="true"><div class="scene-sky"><span class="floating-note note-a">♫</span><span class="floating-note note-b">♩</span><span class="music-star star-one">Do</span><span class="music-star star-two">Sol</span></div><div class="stage-floor"></div><span class="scene-label">選擇模式，開始音程任務！</span></div></section>
   <section id="mode-home" class="mode-home">
     <div class="mode-home-inner">
       <div class="mode-home-title"><span class="tag">INTERVAL LAB · 五年級音樂</span><h1>選擇今天的音程任務</h1><p>選一個模式開始練習，進入後會使用完整畫面。</p></div>
@@ -136,7 +137,7 @@
       </div>
     </div>
   </section>
-  <section class="workspace" id="explore-view">
+  <section class="workspace hidden" id="explore-view">
     <div class="card"><div class="heading explore-heading"><div><span class="tag">STEP 1</span><h2>選擇兩個音符</h2></div><aside class="explore-result" aria-live="polite"><div class="explore-result-head"><span class="tag lime">STEP 2</span><strong>一起數音程</strong><span class="pair" id="pair">Do → Sol</span></div><div class="count-flow"><div class="count-route"><div class="path" id="path"></div></div><div class="count-answer"><span>共</span><b id="degree">5</b><span>度</span></div></div><p class="count-hint" id="explain"></p></aside></div><div class="compare-staves"><section class="interval-panel"><div class="interval-title"><span>曲調音程</span><span>先後播放</span></div><div id="explore-melody"></div><button class="interval-listen" id="play-melody">▶ 播放曲調音程</button></section><section class="interval-panel harmony-panel"><div class="interval-title"><span>和聲音程</span><span>同時播放</span></div><div id="explore-harmony"></div><button class="interval-listen" id="play-harmony">▶ 播放和聲音程</button></section></div><div class="pickers"><fieldset><legend><span>1</span>第一個音</legend><div class="notes" id="first-notes"></div></fieldset><fieldset><legend><span>2</span>第二個音</legend><div class="notes" id="second-notes"></div></fieldset></div></div>
   </section>
   <section class="workspace hidden" id="quiz-view"></section>
@@ -144,7 +145,7 @@
   <section class="shooter-shell hidden" id="shooter-view"></section>
   <script>
     const notes=[{id:'c4',letter:'C',name:'Do',midi:60,step:-2},{id:'d4',letter:'D',name:'Re',midi:62,step:-1},{id:'e4',letter:'E',name:'Mi',midi:64,step:0},{id:'f4',letter:'F',name:'Fa',midi:65,step:1},{id:'g4',letter:'G',name:'Sol',midi:67,step:2},{id:'a4',letter:'A',name:'La',midi:69,step:3},{id:'b4',letter:'B',name:'Si',midi:71,step:4},{id:'c5',letter:'C',name:'高音 Do',midi:72,step:5}];
-    const $=id=>document.getElementById(id);let first=0,second=4,isHarmony=false,question={a:1,b:4,h:false,kind:'degree'},qNo=1,answer=null,checked=false,score=0,finished=false,activeMode='explore',quizPlan=[],quizQuestionIndex=0;
+    const $=id=>document.getElementById(id);let first=0,second=4,isHarmony=false,question={a:1,b:4,h:false,kind:'degree'},qNo=1,answer=null,checked=false,score=0,finished=false,activeMode='home',quizPlan=[],quizQuestionIndex=0;
     const touchInput=matchMedia('(pointer:coarse)').matches||navigator.maxTouchPoints>0;
     let shooterStatus='ready',shooterMode='practice',shooterTime=60,shooterScore=0,shooterPoints=0,shooterPopped=0,shooterMisses=0,shooterCombo=0,shooterBest=0,shooterRound=0,shooterQuestion=null,shooterAnswered=false,shooterTick=null,shooterNextTimer=null,shooterAnimation=null,shooterBoard=[],shooterTypes=[],shooterShots=0,shooterPhase=0,shooterAimAngle=-Math.PI/2,shooterPointerId=null,shooterFinishReason='';
     let trainDirection='up',trainQuestion=null,trainPicked=[],trainStars=0,trainAnswer=null,trainChecked=false,trainMessage='',trainDragIndex=null,trainDeparting=false,trainPlaybackTimers=[],trainPlaybackContexts=[];
@@ -583,7 +584,7 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
       const home=mode==='home',quiz=mode==='quiz',train=mode==='train',shooter=mode==='shooter';
       $('mode-home').classList.toggle('hidden',!home);
       $('mode-back').classList.toggle('hidden',home);
-      $('story-strip').classList.toggle('hidden',!home);
+      $('hero').classList.toggle('hidden',!home);
       $('explore-view').classList.toggle('hidden',home||quiz||train||shooter);
       $('quiz-view').classList.toggle('hidden',!quiz);
       $('train-view').classList.toggle('hidden',!train);
