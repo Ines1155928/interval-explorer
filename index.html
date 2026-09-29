@@ -189,7 +189,12 @@
     }
     @media(max-width:540px){.mode-home-grid{grid-template-columns:1fr}.battle-question small{display:none}.battle-player-name{font-size:16px}.battle-round h2{font-size:17px}}
   </style>
-</head>
+<style>
+  .battle-clock{display:flex;align-items:baseline;justify-content:center;min-width:82px;padding:7px 13px;border-radius:18px;background:#39266f;color:#fff;box-shadow:0 5px 0 #24164f}
+  .battle-clock b{font-size:32px;line-height:1}.battle-clock span{margin-left:4px;font-size:12px;font-weight:900}
+  @media(max-width:700px){.battle-round{display:grid;grid-template-columns:auto 1fr auto}.battle-clock{min-width:60px;padding:5px 8px}.battle-clock b{font-size:25px}}
+  @media(max-width:540px){.battle-round h2{font-size:14px}.battle-round .tag{font-size:9px}.battle-clock{min-width:52px}.battle-clock b{font-size:22px}}
+</style></head>
 <body>
   <header class="topbar"><button class="brand" id="home"><span class="mark">♪</span><span>音程探險家</span></button><button class="mode-back hidden" id="mode-back">← 模式選擇</button><div class="mission"><span id="mission-label">今天的任務</span><b id="mission-value">認識「度」</b></div></header>
   
@@ -202,7 +207,7 @@
         <button class="mode-home-card" id="mode-train"><span class="mode-art mode-art-train" aria-hidden="true"></span><h2>音階小火車</h2><p>依照音階順序接車廂，再自己數出音程度數。</p><span class="mode-arrow">開始接車廂 →</span></button>
         <button class="mode-home-card" id="mode-quiz"><span class="mode-art mode-art-quiz" aria-hidden="true"></span><h2>舞台挑戰</h2><p>同時判斷曲調或和聲，以及音程是幾度。</p><span class="mode-arrow">開始挑戰 →</span></button>
         <button class="mode-home-card" id="mode-shooter"><span class="mode-art mode-art-shooter" aria-hidden="true"></span><h2>音程泡泡龍</h2><p>瞄準唱名泡泡，答對並湊滿三顆就能消除。</p><span class="mode-arrow">開始遊戲 →</span></button>
-        <button class="mode-home-card" id="mode-battle"><span class="mode-art mode-art-battle" aria-hidden="true"></span><h2>雙人音程對戰</h2><p>左右同時搶答，先得到 5 分的玩家獲勝。</p><span class="mode-arrow">開始對戰 →</span></button>
+        <button class="mode-home-card" id="mode-battle"><span class="mode-art mode-art-battle" aria-hidden="true"></span><h2>雙人音程對戰</h2><p>60 秒各自答題，時間到時答對最多題的玩家獲勝。</p><span class="mode-arrow">開始對戰 →</span></button>
       </div>
     </div>
   </section>
@@ -219,7 +224,7 @@
     const touchInput=matchMedia('(pointer:coarse)').matches||navigator.maxTouchPoints>0;
     let shooterStatus='ready',shooterMode='practice',shooterTime=60,shooterScore=0,shooterPoints=0,shooterPopped=0,shooterMisses=0,shooterCombo=0,shooterBest=0,shooterRound=0,shooterQuestion=null,shooterAnswered=false,shooterTick=null,shooterNextTimer=null,shooterAnimation=null,shooterBoard=[],shooterTypes=[],shooterShots=0,shooterPhase=0,shooterAimAngle=-Math.PI/2,shooterPointerId=null,shooterFinishReason='';
     let trainDirection='up',trainQuestion=null,trainPicked=[],trainStars=0,trainAnswer=null,trainChecked=false,trainMessage='',trainDragIndex=null,trainDeparting=false,trainFinished=false,trainPlaybackTimers=[],trainPlaybackContexts=[];
-    let battleScore=[0,0],battleQuestion=null,battleLocked=false,battleBlocked=[false,false],battleMessage=['',''],battleWinner=null,battleRound=1,battleUnlockTimers=[null,null],battleNextTimer=null;
+    let battleScore=[0,0],battleQuestions=[null,null],battleMessage=['',''],battleWinner=null,battleTime=60,battleStatus='ready',battleTimer=null;
     function tone(midi,start,duration,ctx,target=ctx.destination){const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.value=440*Math.pow(2,(midi-69)/12);g.gain.setValueAtTime(.0001,start);g.gain.exponentialRampToValueAtTime(.36,start+.025);g.gain.exponentialRampToValueAtTime(.0001,start+duration);o.connect(g).connect(target);o.start(start);o.stop(start+duration+.05)}
     function makeReverb(ctx){const seconds=2.7,length=Math.floor(ctx.sampleRate*seconds),buffer=ctx.createBuffer(2,length,ctx.sampleRate);for(let channel=0;channel<2;channel++){const data=buffer.getChannelData(channel);for(let i=0;i<length;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/length,2.7)}const convolver=ctx.createConvolver();convolver.buffer=buffer;return convolver}
     function closeAudioContext(ctx){if(ctx&&ctx.state!=='closed')ctx.close().catch(()=>{})}
@@ -678,83 +683,82 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
     }
     function resetShooter(){clearShooterTimers();shooterStatus='ready';shooterQuestion=null;shooterAnswered=false}
 
-    function makeBattleQuestion(){
-      const a=Math.floor(Math.random()*notes.length),b=Math.floor(Math.random()*notes.length);
-      return {a,b,degree:Math.abs(a-b)+1};
+    function makeBattleQuestion(...excluded){
+      let next;
+      do{
+        const a=Math.floor(Math.random()*notes.length),b=Math.floor(Math.random()*notes.length);
+        next={a,b,degree:Math.abs(a-b)+1};
+      }while(excluded.some(q=>q&&next.a===q.a&&next.b===q.b));
+      return next;
     }
     function clearBattleTimers(){
-      battleUnlockTimers.forEach(timer=>timer&&clearTimeout(timer));
-      battleUnlockTimers=[null,null];
-      if(battleNextTimer)clearTimeout(battleNextTimer);
-      battleNextTimer=null;
+      if(battleTimer)clearInterval(battleTimer);
+      battleTimer=null;
     }
     function resetBattle(){
       clearBattleTimers();
-      battleScore=[0,0];battleQuestion=null;battleLocked=false;battleBlocked=[false,false];
-      battleMessage=['',''];battleWinner=null;battleRound=1;
+      battleScore=[0,0];battleQuestions=[null,null];battleMessage=['',''];
+      battleWinner=null;battleTime=60;battleStatus='ready';
     }
     function startBattle(){
       resetBattle();
-      battleQuestion=makeBattleQuestion();
+      const firstQuestion=makeBattleQuestion();
+      battleQuestions=[firstQuestion,makeBattleQuestion(firstQuestion)];
+      battleStatus='running';
       show('battle');
+      battleTimer=setInterval(()=>{
+        if(activeMode!=='battle'||battleStatus!=='running')return;
+        battleTime--;
+        const clock=$('battle-clock');
+        if(clock)clock.textContent=battleTime;
+        if(battleTime<=0)finishBattle();
+      },1000);
+    }
+    function finishBattle(){
+      if(battleStatus!=='running')return;
+      clearBattleTimers();
+      battleStatus='finished';
+      battleWinner=battleScore[0]===battleScore[1]?'tie':battleScore[0]>battleScore[1]?0:1;
+      renderBattle();
+      $('mission-label').textContent='對戰完成';
+      $('mission-value').textContent=battleWinner==='tie'?'平手！':`${battleWinner===0?'玩家一':'玩家二'}獲勝`;
     }
     function renderBattle(){
-      if(!battleQuestion)battleQuestion=makeBattleQuestion();
-      if(battleWinner!==null){
-        const winner=battleWinner===0?'玩家一':'玩家二';
-        $('battle-view').innerHTML=`<div class="battle-finish"><span class="tag lime">BATTLE COMPLETE</span><h2>🏆 ${winner}獲勝！</h2><div class="battle-final-score">${battleScore[0]} ： ${battleScore[1]}</div><p>兩位玩家都完成了精彩的音程挑戰！</p><div class="battle-actions"><button class="back" id="battle-home">返回模式選擇</button><button class="restart" id="battle-restart">再比一場</button></div></div>`;
+      if(battleStatus==='finished'){
+        const title=battleWinner==='tie'?'🤝 平手！':`🏆 ${battleWinner===0?'玩家一':'玩家二'}獲勝！`;
+        $('battle-view').innerHTML=`<div class="battle-finish"><span class="tag lime">TIME'S UP</span><h2>${title}</h2><div class="battle-final-score">${battleScore[0]} ： ${battleScore[1]}</div><p>60 秒計時結束，答對題數最多的玩家獲勝！</p><div class="battle-actions"><button class="back" id="battle-home">返回模式選擇</button><button class="restart" id="battle-restart">再比一場</button></div></div>`;
         $('battle-home').onclick=()=>show('home');
         $('battle-restart').onclick=startBattle;
         return;
       }
-      const q=battleQuestion;
       const playerPanel=p=>{
+        const q=battleQuestions[p]||(battleQuestions[p]=makeBattleQuestion());
         const side=p===0?'one':'two',name=p===0?'玩家一':'玩家二';
-        const buttons=[1,2,3,4,5,6,7,8].map(d=>`<button data-player="${p}" data-degree="${d}" ${battleLocked||battleBlocked[p]?'disabled':''}>${d} 度</button>`).join('');
-        const message=battleMessage[p];
-        const messageClass=message.includes('答對')?'good':message?'bad':'';
-        return `<section class="battle-player ${side} ${battleBlocked[p]?'blocked':''}" id="battle-player-${p}"><div class="battle-player-head"><span class="battle-player-name">${p===0?'🟣':'🟠'} ${name}</span><span class="battle-score"><b>${battleScore[p]}</b> 分</span></div><div class="battle-question">${notes[q.a].name} → ${notes[q.b].name}<small>起點和終點都要算</small></div><div class="battle-staff">${staff(notes[q.a],notes[q.b],false,true)}</div><button class="battle-listen" data-listen="${p}">▶ 播放題目</button><div class="battle-answer-grid">${buttons}</div><p class="battle-message ${messageClass}" aria-live="polite">${message||'請選擇音程度數'}</p></section>`;
+        const buttons=[1,2,3,4,5,6,7,8].map(d=>`<button data-player="${p}" data-degree="${d}">${d} 度</button>`).join('');
+        const message=battleMessage[p],messageClass=message.includes('答對')?'good':message?'bad':'';
+        return `<section class="battle-player ${side}" id="battle-player-${p}"><div class="battle-player-head"><span class="battle-player-name">${p===0?'🟣':'🟠'} ${name}</span><span class="battle-score"><b>${battleScore[p]}</b> 題</span></div><div class="battle-question">${notes[q.a].name} → ${notes[q.b].name}<small>這是你的題目，答對會立刻換下一題</small></div><div class="battle-staff">${staff(notes[q.a],notes[q.b],false,true)}</div><button class="battle-listen" data-listen="${p}">▶ 播放題目</button><div class="battle-answer-grid">${buttons}</div><p class="battle-message ${messageClass}" aria-live="polite">${message||'請選擇音程度數'}</p></section>`;
       };
-      $('battle-view').innerHTML=`<div class="battle-board"><div class="battle-round"><span class="tag">ROUND ${battleRound}</span><h2>看樂譜搶答：這是幾度音程？</h2></div>${playerPanel(0)}${playerPanel(1)}</div>`;
+      $('battle-view').innerHTML=`<div class="battle-board"><div class="battle-round"><span class="tag">60 秒計時賽</span><h2>各自答題，答對立即換下一題</h2><div class="battle-clock"><b id="battle-clock">${battleTime}</b><span>秒</span></div></div>${playerPanel(0)}${playerPanel(1)}</div>`;
       $('battle-view').querySelectorAll('[data-degree]').forEach(button=>button.onclick=()=>answerBattle(+button.dataset.player,+button.dataset.degree));
-      $('battle-view').querySelectorAll('[data-listen]').forEach(button=>button.onclick=()=>{const p=+button.dataset.listen;play(notes[q.a],notes[q.b],false,`#battle-player-${p}`)});
+      $('battle-view').querySelectorAll('[data-listen]').forEach(button=>button.onclick=()=>{
+        const p=+button.dataset.listen,q=battleQuestions[p];
+        play(notes[q.a],notes[q.b],false,`#battle-player-${p}`);
+      });
     }
     function answerBattle(player,degree){
-      if(activeMode!=='battle'||battleWinner!==null||battleLocked||battleBlocked[player])return;
-      if(degree!==battleQuestion.degree){
-        battleBlocked[player]=true;
-        battleMessage[player]='再算一次！稍後可以重答';
+      if(activeMode!=='battle'||battleStatus!=='running')return;
+      const q=battleQuestions[player];
+      if(degree!==q.degree){
+        battleMessage[player]='還不對，再算一次！';
         playQuizFeedback(false);
         renderBattle();
-        battleUnlockTimers[player]=setTimeout(()=>{
-          if(activeMode!=='battle'||battleWinner!==null||battleLocked)return;
-          battleBlocked[player]=false;
-          battleMessage[player]='可以再回答了！';
-          renderBattle();
-        },850);
         return;
       }
-      clearBattleTimers();
-      battleLocked=true;
       battleScore[player]++;
-      battleMessage[player]='答對了！獲得 1 分';
-      battleMessage[1-player]='這題由對手先答對';
+      battleMessage[player]='答對了！下一題';
+      battleQuestions[player]=makeBattleQuestion(q,battleQuestions[1-player]);
       playQuizFeedback(true);
-      if(battleScore[player]>=5){
-        battleWinner=player;
-        renderBattle();
-        return;
-      }
       renderBattle();
-      battleNextTimer=setTimeout(()=>{
-        if(activeMode!=='battle')return;
-        battleQuestion=makeBattleQuestion();
-        battleLocked=false;
-        battleBlocked=[false,false];
-        battleMessage=['',''];
-        battleRound++;
-        renderBattle();
-      },1200);
     }
     function show(mode){
       if(activeMode==='shooter'&&mode!=='shooter'&&shooterStatus==='running')resetShooter();
@@ -772,7 +776,7 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
       if(home){$('mission-label').textContent='選擇模式';$('mission-value').textContent='開始練習';return}
       if(train){if(!trainQuestion){trainQuestion=makeTrainQuestion();trainPicked=[];trainMessage='先找下一個音符車廂。'}renderTrain();$('mission-label').textContent='基礎練習';$('mission-value').textContent='音階順序'}
       else if(shooter){renderShooter();if(shooterStatus==='ready'){$('mission-label').textContent='自由瞄準';$('mission-value').textContent='選擇模式'}}
-      else if(battle){renderBattle();$('mission-label').textContent='雙人對戰';$('mission-value').textContent='先得 5 分獲勝'}
+      else if(battle){renderBattle();$('mission-label').textContent='雙人對戰';$('mission-value').textContent='60 秒計時賽'}
       else if(quiz){$('mission-label').textContent='舞台挑戰';$('mission-value').textContent='雙重判斷'}
       else {$('mission-label').textContent='自由探索';$('mission-value').textContent='認識「度」'}
     }
