@@ -448,7 +448,7 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
       return{width,height,cell,radius:cell*.49,rowHeight:cell*.86,startX:(width-(SHOOTER_COLS+.5)*cell)/2+cell/2,top:20+cell*.49,originX:width/2,originY:height-46};
     }
     function shooterPoint(r,c,metrics){return{x:metrics.startX+c*metrics.cell+((r+shooterPhase)%2)*metrics.cell/2,y:metrics.top+r*metrics.rowHeight}}
-    function traceShooterShot(angle,metrics,includePath=false,points=null,preferredNote=null){
+    function traceShooterShot(angle,metrics,includePath=false,points=null){
       const step=Math.max(3,metrics.radius*.18),hitDistance=(metrics.radius*1.98)**2;
       const bubbles=points||shooterBoard.map(cell=>({cell,...shooterPoint(cell.r,cell.c,metrics)}));
       let x=metrics.originX,y=metrics.originY,vx=Math.cos(angle),vy=Math.sin(angle),bounced=false;
@@ -459,13 +459,11 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
         if(x>metrics.width-metrics.radius){x=2*(metrics.width-metrics.radius)-x;vx=-Math.abs(vx);bounced=true}
         if(path)path.push({x,y});
         if(y<=metrics.radius+4)return{hit:null,x,y,bounced,path,step};
-        let hit=null,nearest=Infinity,preferredHit=null,preferredDistance=Infinity;
+        let hit=null,nearest=Infinity;
         bubbles.forEach(point=>{
           const dx=x-point.x,dy=y-point.y,distance=dx*dx+dy*dy;
           if(distance<nearest){nearest=distance;hit=point.cell}
-          if(preferredNote!==null&&point.cell.note===preferredNote&&distance<preferredDistance){preferredDistance=distance;preferredHit=point.cell}
         });
-        if(preferredHit&&preferredDistance<=hitDistance)return{hit:preferredHit,x,y,bounced,path,step};
         if(hit&&nearest<=hitDistance)return{hit,x,y,bounced,path,step};
       }
       return{hit:null,x,y,bounced,path,step};
@@ -598,7 +596,7 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
       if(shooterStatus!=='running'||shooterAnswered||!shooterQuestion)return;
       shooterAnswered=true;shooterShots++;
       const arena=$('shooter-arena'),metrics=shooterMetrics(),question=shooterQuestion;
-      const trace=traceShooterShot(shooterAimAngle,metrics,true,null,question.target);
+      const trace=traceShooterShot(shooterAimAngle,metrics,true);
       updateShooterAim();
       const shot=document.createElement('span');shot.className='shot-bubble';shot.textContent='?';
       shot.style.width=metrics.radius*2+'px';shot.style.height=metrics.radius*2+'px';shot.style.fontSize=metrics.radius+'px';
@@ -619,14 +617,7 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
     }
     function findShooterLanding(hit,x,y,metrics){
       let spots=hit?shooterNeighbors(hit.r,hit.c):Array.from({length:SHOOTER_COLS},(_,c)=>({r:0,c}));
-      spots=spots.filter(cell=>cell.r<12&&!shooterAt(cell.r,cell.c));
-      if(!spots.length){
-        const fallback=[...Array.from({length:SHOOTER_COLS},(_,c)=>({r:0,c}))];
-        shooterBoard.forEach(cell=>fallback.push(...shooterNeighbors(cell.r,cell.c)));
-        const unique=new Map();
-        fallback.filter(cell=>cell.r>=0&&cell.r<12&&!shooterAt(cell.r,cell.c)).forEach(cell=>unique.set(shooterKey(cell),cell));
-        spots=[...unique.values()];
-      }
+      spots=spots.filter(cell=>cell.r>=0&&cell.r<12&&!shooterAt(cell.r,cell.c));
       spots.sort((a,b)=>{
         const pointA=shooterPoint(a.r,a.c,metrics),pointB=shooterPoint(b.r,b.c,metrics);
         return Math.hypot(pointA.x-x,pointA.y-y)-Math.hypot(pointB.x-x,pointB.y-y);
@@ -664,7 +655,15 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
       if(shooterStatus!=='running'||shooterQuestion!==question)return;
       cancelAnimationFrame(shooterAnimation);shooterAnimation=null;shot.remove();
       const landing=findShooterLanding(hit,x,y,metrics);
-      if(!landing){finishShooter('棋盤已經擠滿，火炮無法再接上泡泡。');return}
+      if(!landing){
+        shooterShots=Math.max(0,shooterShots-1);
+        shooterAnswered=false;
+        const feedback=$('shooter-feedback');
+        feedback.className='shooter-feedback bad';
+        feedback.innerHTML='這個碰撞位置旁邊沒有空格，請換一個角度再射。<span>本次不扣失誤，也不會移到其他位置。</span>';
+        updateShooterHud();updateShooterAim();
+        return;
+      }
       const correct=!!hit&&!hit.gray&&hit.note===question.target;
       const placed={...landing,note:correct?question.target:-1,gray:!correct};
       shooterBoard.push(placed);
