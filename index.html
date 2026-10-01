@@ -194,6 +194,9 @@
   .battle-clock b{font-size:32px;line-height:1}.battle-clock span{margin-left:4px;font-size:12px;font-weight:900}
   @media(max-width:700px){.battle-round{display:grid;grid-template-columns:auto 1fr auto}.battle-clock{min-width:60px;padding:5px 8px}.battle-clock b{font-size:25px}}
   @media(max-width:540px){.battle-round h2{font-size:14px}.battle-round .tag{font-size:9px}.battle-clock{min-width:52px}.battle-clock b{font-size:22px}}
+</style><style>
+  #battle-view,#battle-view *{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+  #battle-view button{-webkit-tap-highlight-color:transparent}
 </style></head>
 <body>
   <header class="topbar"><button class="brand" id="home"><span class="mark">♪</span><span>音程探險家</span></button><button class="mode-back hidden" id="mode-back">← 模式選擇</button><div class="mission"><span id="mission-label">今天的任務</span><b id="mission-value">認識「度」</b></div></header>
@@ -450,7 +453,7 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
       for(let sample=0;sample<=240;sample++){
         const angle=-Math.PI+.2+sample*(Math.PI-.4)/240;
         const trace=traceShooterShot(angle,metrics,false,points);
-        if(trace.hit&&!trace.hit.gray&&!trace.bounced)hitCounts.set(trace.hit.note,(hitCounts.get(trace.hit.note)||0)+1);
+        if(trace.hit&&!trace.hit.gray)hitCounts.set(trace.hit.note,(hitCounts.get(trace.hit.note)||0)+1);
       }
       return new Set([...hitCounts].filter(([,count])=>count>=3).map(([note])=>note));
     }
@@ -594,8 +597,12 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
     function findShooterLanding(hit,x,y,metrics){
       let spots=hit?shooterNeighbors(hit.r,hit.c):Array.from({length:SHOOTER_COLS},(_,c)=>({r:0,c}));
       spots=spots.filter(cell=>cell.r<12&&!shooterAt(cell.r,cell.c));
-      if(!spots.length&&!hit){
-        shooterBoard.filter(cell=>cell.r===0).forEach(cell=>spots.push(...shooterNeighbors(cell.r,cell.c).filter(next=>!shooterAt(next.r,next.c))));
+      if(!spots.length){
+        const fallback=[...Array.from({length:SHOOTER_COLS},(_,c)=>({r:0,c}))];
+        shooterBoard.forEach(cell=>fallback.push(...shooterNeighbors(cell.r,cell.c)));
+        const unique=new Map();
+        fallback.filter(cell=>cell.r>=0&&cell.r<12&&!shooterAt(cell.r,cell.c)).forEach(cell=>unique.set(shooterKey(cell),cell));
+        spots=[...unique.values()];
       }
       spots.sort((a,b)=>{
         const pointA=shooterPoint(a.r,a.c,metrics),pointB=shooterPoint(b.r,b.c,metrics);
@@ -780,6 +787,9 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
       else if(quiz){$('mission-label').textContent='舞台挑戰';$('mission-value').textContent='雙重判斷'}
       else {$('mission-label').textContent='自由探索';$('mission-value').textContent='認識「度」'}
     }
+    const battleView=$('battle-view');
+    ['gesturestart','gesturechange','gestureend'].forEach(type=>battleView.addEventListener(type,event=>{if(activeMode==='battle')event.preventDefault()},{passive:false}));
+    battleView.addEventListener('touchmove',event=>{if(activeMode==='battle'&&event.touches.length>1)event.preventDefault()},{passive:false});
     document.addEventListener('keydown',event=>{if(activeMode!=='shooter'||shooterStatus!=='running')return;if(event.key==='ArrowLeft'){event.preventDefault();changeShooterAim(-1)}if(event.key==='ArrowRight'){event.preventDefault();changeShooterAim(1)}if(event.key===' '||event.key==='Enter'){event.preventDefault();fireShooterBubble()}});
     window.addEventListener('resize',()=>{if(activeMode==='shooter'&&shooterStatus==='running'){renderShooterBoard();updateShooterAim();if(!shooterAnswered&&shooterQuestion&&!reachableShooterNotes().has(shooterQuestion.target))newShooterRound()}});
     function startTrain(){stopTrainPlayback();trainRevealBag=[];trainQuestion=makeTrainQuestion();trainPicked=[];trainStars=0;trainAnswer=null;trainChecked=false;trainDeparting=false;trainFinished=false;trainMessage='依照題目方向選下一個音。';trainDragIndex=null;show('train')}
