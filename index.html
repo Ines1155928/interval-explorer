@@ -286,23 +286,40 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
     function makeTrainQuestion(){const degree=2+Math.floor(Math.random()*7),distance=degree-1,direction=trainDirection==='up'?1:-1,start=direction===1?Math.floor(Math.random()*(8-distance)):distance+Math.floor(Math.random()*(8-distance)),path=Array.from({length:degree},(_,i)=>start+i*direction),choices=new Set(path.slice(1));while(choices.size<Math.min(6,degree+2))choices.add(Math.floor(Math.random()*8));const options=[...choices];for(let i=options.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[options[i],options[j]]=[options[j],options[i]]}return{degree:degree,start:start,path:path,options:options,direction:direction,reverse:Math.random()>.5}}
     function renderTrain(){if(!trainQuestion)return;const q=trainQuestion,expected=q.reverse?q.path.slice(0,-1).reverse():q.path.slice(1),completed=trainPicked.length===expected.length,displayNotes=q.reverse?expected.slice().reverse():expected,routeCars=displayNotes.map((note,visualIndex)=>{const pickIndex=q.reverse?expected.length-1-visualIndex:visualIndex,picked=trainPicked[pickIndex];return trainPiece(picked===undefined?null:picked,'train-car '+(picked!==undefined?'filled ':'')+(visualIndex===displayNotes.length-1?'final':''),visualIndex+2,visualIndex===displayNotes.length-1)}).join(''),knownEnd=notes[q.path[q.path.length-1]],route=q.reverse?routeCars+'<div class="train-station"><b>'+knownEnd.name+'</b><small>終點站</small></div>':'<div class="train-engine"><b>'+notes[q.start].name+'</b><small>起點站</small></div>'+routeCars,modeText=q.reverse?'右邊顯示終點；請從右往左、依音階往'+(q.direction===1?'下':'上')+'推回起點。':'左邊顯示起點；請從左往右、依音階往'+(q.direction===1?'上':'下')+'找到終點。',bankText=q.reverse?'從終點旁邊開始，選擇下一節往左的車廂。':'從起點旁邊開始，選擇下一節往右的車廂。',countDots=[1,2,3,4,5,6,7,8].map(n=>'<i class="'+(n<=trainStars?'on':'')+'"></i>').join(''),used=new Set(trainPicked),bank=q.options.map(index=>'<button class="train-note '+(used.has(index)?'used':'')+'" data-note="'+index+'" draggable="'+(!used.has(index))+'" '+(used.has(index)?'disabled':'')+'><b>'+notes[index].name+'</b><small>'+notes[index].letter+'</small></button>').join(''),answerArea=completed?'<div class="train-complete"><b>'+notes[q.start].name+' 到 '+knownEnd.name+' 是幾度？</b><div class="train-answer-grid">'+[1,2,3,4,5,6,7,8].map(d=>'<button data-degree="'+d+'" '+(trainChecked?'disabled':'')+' class="'+(trainAnswer===d?'chosen ':'')+(trainChecked&&d===q.degree?'correct ':'')+(trainChecked&&trainAnswer===d&&d!==q.degree?'wrong':'')+'">'+d+' 度</button>').join('')+'</div>'+(trainChecked?'<p class="train-message '+(trainAnswer===q.degree?'':'wrong')+'">'+(trainAnswer===q.degree?'答對了！示範音程播放完後會換下一題。':'還差一點，起點和終點都要算；示範音程播放完後會換下一題。')+'</p>':'')+'</div>':'';$('train-view').innerHTML='<div class="card train-card '+(trainDeparting?'departing ':'')+(trainDirection==='down'?'going-left':'going-right')+'"><div class="train-head"><div><span class="tag lime">STEP BY STEP</span><h2>音階小火車</h2></div><div class="train-switch"><button id="train-up" class="'+(trainDirection==='up'?'active':'')+'">上行音階</button><button id="train-down" class="'+(trainDirection==='down'?'active':'')+'">下行音階</button></div></div><div class="train-intro"><b>🚂 任務：依照題目方向接車廂</b>'+modeText+'</div><div class="train-progress"><span>完成路線</span>'+countDots+'</div><div class="train-stage"><div class="train-route">'+route+'</div><div class="train-track"></div></div><div class="train-bank"><p>'+bankText+'</p><div class="train-bank-items">'+bank+'</div><div class="train-message '+(trainMessage.includes('不')?'wrong':'')+'">'+trainMessage+'</div></div>'+answerArea+'</div>';$('train-up').onclick=()=>{stopTrainPlayback();trainDirection='up';trainQuestion=makeTrainQuestion();trainPicked=[];trainAnswer=null;trainChecked=false;trainMessage='依照題目方向選第一節車廂。';renderTrain()};$('train-down').onclick=()=>{stopTrainPlayback();trainDirection='down';trainQuestion=makeTrainQuestion();trainPicked=[];trainAnswer=null;trainChecked=false;trainMessage='依照題目方向選第一節車廂。';renderTrain()};document.querySelectorAll('.train-note').forEach(button=>{button.onclick=()=>addTrainNote(+button.dataset.note);button.ondragstart=()=>{trainDragIndex=+button.dataset.note}});document.querySelectorAll('.train-car:not(.filled)').forEach(car=>{car.ondragover=e=>e.preventDefault();car.ondrop=e=>{e.preventDefault();if(trainDragIndex!==null)addTrainNote(trainDragIndex)}});document.querySelectorAll('.train-answer-grid button').forEach(button=>button.onclick=()=>{if(!trainChecked){trainAnswer=+button.dataset.degree;trainChecked=true;if(trainAnswer===q.degree){trainStars++;trainDeparting=false;renderTrain();const wait=playTrainComplete(q);setTimeout(()=>{trainDeparting=true;renderTrain();setTimeout(()=>{trainQuestion=makeTrainQuestion();trainPicked=[];trainAnswer=null;trainChecked=false;trainMessage='新的路線出發囉！';trainDeparting=false;renderTrain()},1900)},wait)}else renderTrain()}})}
     function addTrainNote(index){if(!trainQuestion||trainChecked||trainPicked.includes(index))return;const expected=trainQuestion.reverse?trainQuestion.path[trainQuestion.path.length-2-trainPicked.length]:trainQuestion.path[trainPicked.length+1];if(index===expected){trainPicked.push(index);playOne(notes[index]);trainMessage=trainPicked.length===trainQuestion.path.length-1?'每一節都接對了！現在一起數音程。':'很好！'+notes[index].name+' 是下一站。'}else{trainMessage='這一節還不是正確的下一個音。依照題目方向再想一想。'}renderTrain()}
-    let trainRevealBag=[];
-    function nextTrainReveal(){
-      if(!trainRevealBag.length)trainRevealBag=Math.random()<.5?[false,true]:[true,false];
-      return trainRevealBag.pop();
+    let trainQuestionBag=[],trainLastQuestion=null;
+    function shuffleTrainItems(items){
+      for(let i=items.length-1;i>0;i--){
+        const j=Math.floor(Math.random()*(i+1));
+        [items[i],items[j]]=[items[j],items[i]];
+      }
+      return items;
+    }
+    function refillTrainQuestionBag(){
+      trainQuestionBag=[];
+      for(let degree=2;degree<=8;degree++){
+        for(let start=0;start<=8-degree;start++){
+          trainQuestionBag.push({degree,start,reverse:false},{degree,start,reverse:true});
+        }
+      }
+      shuffleTrainItems(trainQuestionBag);
+    }
+    function nextTrainQuestionSeed(){
+      if(!trainQuestionBag.length)refillTrainQuestionBag();
+      let index=trainQuestionBag.length-1;
+      if(trainLastQuestion){
+        const different=trainQuestionBag.findIndex(item=>item.degree!==trainLastQuestion.degree);
+        if(different>=0)index=different;
+      }
+      const seed=trainQuestionBag.splice(index,1)[0];
+      trainLastQuestion=seed;
+      return seed;
     }
     function makeTrainQuestion(){
-      const degree=2+Math.floor(Math.random()*7);
-      const start=Math.floor(Math.random()*(9-degree));
+      const seed=nextTrainQuestionSeed(),degree=seed.degree,start=seed.start,reverse=seed.reverse;
       const path=Array.from({length:degree},(_,i)=>start+i);
-      const reverse=nextTrainReveal();
       const choices=new Set(reverse?path.slice(0,-1):path.slice(1));
       while(choices.size<Math.min(6,degree+2))choices.add(Math.floor(Math.random()*8));
-      const options=[...choices];
-      for(let i=options.length-1;i>0;i--){
-        const j=Math.floor(Math.random()*(i+1));
-        [options[i],options[j]]=[options[j],options[i]];
-      }
+      const options=shuffleTrainItems([...choices]);
       return{degree,start,path,options,reverse};
     }
     function renderTrain(){
@@ -792,7 +809,7 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
     battleView.addEventListener('touchmove',event=>{if(activeMode==='battle'&&event.touches.length>1)event.preventDefault()},{passive:false});
     document.addEventListener('keydown',event=>{if(activeMode!=='shooter'||shooterStatus!=='running')return;if(event.key==='ArrowLeft'){event.preventDefault();changeShooterAim(-1)}if(event.key==='ArrowRight'){event.preventDefault();changeShooterAim(1)}if(event.key===' '||event.key==='Enter'){event.preventDefault();fireShooterBubble()}});
     window.addEventListener('resize',()=>{if(activeMode==='shooter'&&shooterStatus==='running'){renderShooterBoard();updateShooterAim();if(!shooterAnswered&&shooterQuestion&&!reachableShooterNotes().has(shooterQuestion.target))newShooterRound()}});
-    function startTrain(){stopTrainPlayback();trainRevealBag=[];trainQuestion=makeTrainQuestion();trainPicked=[];trainStars=0;trainAnswer=null;trainChecked=false;trainDeparting=false;trainFinished=false;trainMessage='依照題目方向選下一個音。';trainDragIndex=null;show('train')}
+    function startTrain(){stopTrainPlayback();trainQuestionBag=[];trainLastQuestion=null;trainQuestion=makeTrainQuestion();trainPicked=[];trainStars=0;trainAnswer=null;trainChecked=false;trainDeparting=false;trainFinished=false;trainMessage='依照題目方向選下一個音。';trainDragIndex=null;show('train')}
     document.addEventListener('click',event=>{if(activeMode!=='train')return;const control=event.target.closest('#train-next,#train-up,#train-down,#story-explore,#story-train,#story-quiz,#story-shooter,#home');if(control)stopTrainPlayback()},true);
     document.addEventListener('click',event=>{if(activeMode!=='quiz'||event.target.id!=='check')return;const answeredQuestion=question;setTimeout(()=>{if(activeMode!=='quiz'||question!==answeredQuestion||!checked)return;if(qNo===5){finished=true;renderQuiz();return}qNo++;question=newQuestion();degreeAnswer=null;typeAnswer=null;checked=false;renderQuiz();autoplayQuizHarmony()},1600)},true);
     $('mode-explore').onclick=()=>show('explore');$('mode-train').onclick=startTrain;$('mode-quiz').onclick=startQuiz;$('mode-shooter').onclick=()=>show('shooter');$('mode-battle').onclick=startBattle;$('home').onclick=()=>show('home');$('mode-back').onclick=()=>show('home');renderExplore();show('home');
