@@ -197,6 +197,12 @@
 </style><style>
   #battle-view,#battle-view *{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
   #battle-view button{-webkit-tap-highlight-color:transparent}
+</style><style>
+  .battle-ready{max-width:700px}
+  .battle-ready-players{display:flex;align-items:center;justify-content:center;gap:18px;margin:20px auto;padding:16px;border-radius:18px;background:#ffffffd9;font-size:clamp(18px,3vw,26px);font-weight:950}
+  .battle-ready-players b{color:var(--coral);font-size:18px}
+  .battle-ready-rules{max-width:500px;margin:0 auto;text-align:left;color:var(--muted);line-height:1.9}
+  #battle-start{min-width:180px;background:var(--purple);color:#fff;box-shadow:0 5px 0 #452a91}
 </style></head>
 <body>
   <header class="topbar"><button class="brand" id="home"><span class="mark">♪</span><span>音程探險家</span></button><button class="mode-back hidden" id="mode-back">← 模式選擇</button><div class="mission"><span id="mission-label">今天的任務</span><b id="mission-value">認識「度」</b></div></header>
@@ -724,6 +730,10 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
       battleScore=[0,0];battleQuestions=[null,null];battleMessage=['',''];
       battleWinner=null;battleTime=60;battleStatus='ready';
     }
+    function openBattle(){
+      resetBattle();
+      show('battle');
+    }
     function startBattle(){
       resetBattle();
       const firstQuestion=makeBattleQuestion();
@@ -748,11 +758,17 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
       $('mission-value').textContent=battleWinner==='tie'?'平手！':`${battleWinner===0?'玩家一':'玩家二'}獲勝`;
     }
     function renderBattle(){
+      if(battleStatus==='ready'){
+        $('battle-view').innerHTML=`<div class="battle-finish battle-ready"><span class="tag">TWO PLAYER BATTLE</span><h2>🎵 雙人音程對戰</h2><p>兩位玩家都準備好後再開始。按下按鈕才會出現題目並開始 60 秒倒數。</p><div class="battle-ready-players"><span>🟣 玩家一</span><b>VS</b><span>🟠 玩家二</span></div><ul class="battle-ready-rules"><li>兩邊各自回答自己的題目</li><li>答對立即加 1 分並換下一題</li><li>時間到時，答對題數最多的人獲勝</li></ul><div class="battle-actions"><button class="back" id="battle-home">返回模式選擇</button><button class="restart" id="battle-start">開始比賽</button></div></div>`;
+        $('battle-home').onclick=()=>show('home');
+        $('battle-start').onclick=startBattle;
+        return;
+      }
       if(battleStatus==='finished'){
         const title=battleWinner==='tie'?'🤝 平手！':`🏆 ${battleWinner===0?'玩家一':'玩家二'}獲勝！`;
         $('battle-view').innerHTML=`<div class="battle-finish"><span class="tag lime">TIME'S UP</span><h2>${title}</h2><div class="battle-final-score">${battleScore[0]} ： ${battleScore[1]}</div><p>60 秒計時結束，答對題數最多的玩家獲勝！</p><div class="battle-actions"><button class="back" id="battle-home">返回模式選擇</button><button class="restart" id="battle-restart">再比一場</button></div></div>`;
         $('battle-home').onclick=()=>show('home');
-        $('battle-restart').onclick=startBattle;
+        $('battle-restart').onclick=openBattle;
         return;
       }
       const playerPanel=p=>{
@@ -800,7 +816,7 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
       if(home){$('mission-label').textContent='選擇模式';$('mission-value').textContent='開始練習';return}
       if(train){if(!trainQuestion){trainQuestion=makeTrainQuestion();trainPicked=[];trainMessage='先找下一個音符車廂。'}renderTrain();$('mission-label').textContent='基礎練習';$('mission-value').textContent='音階順序'}
       else if(shooter){renderShooter();if(shooterStatus==='ready'){$('mission-label').textContent='自由瞄準';$('mission-value').textContent='選擇模式'}}
-      else if(battle){renderBattle();$('mission-label').textContent='雙人對戰';$('mission-value').textContent='60 秒計時賽'}
+      else if(battle){renderBattle();$('mission-label').textContent='雙人對戰';$('mission-value').textContent=battleStatus==='ready'?'等待開始':'60 秒計時賽'}
       else if(quiz){$('mission-label').textContent='舞台挑戰';$('mission-value').textContent='雙重判斷'}
       else {$('mission-label').textContent='自由探索';$('mission-value').textContent='認識「度」'}
     }
@@ -812,7 +828,7 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
     function startTrain(){stopTrainPlayback();trainQuestionBag=[];trainLastQuestion=null;trainQuestion=makeTrainQuestion();trainPicked=[];trainStars=0;trainAnswer=null;trainChecked=false;trainDeparting=false;trainFinished=false;trainMessage='依照題目方向選下一個音。';trainDragIndex=null;show('train')}
     document.addEventListener('click',event=>{if(activeMode!=='train')return;const control=event.target.closest('#train-next,#train-up,#train-down,#story-explore,#story-train,#story-quiz,#story-shooter,#home');if(control)stopTrainPlayback()},true);
     document.addEventListener('click',event=>{if(activeMode!=='quiz'||event.target.id!=='check')return;const answeredQuestion=question;setTimeout(()=>{if(activeMode!=='quiz'||question!==answeredQuestion||!checked)return;if(qNo===5){finished=true;renderQuiz();return}qNo++;question=newQuestion();degreeAnswer=null;typeAnswer=null;checked=false;renderQuiz();autoplayQuizHarmony()},1600)},true);
-    $('mode-explore').onclick=()=>show('explore');$('mode-train').onclick=startTrain;$('mode-quiz').onclick=startQuiz;$('mode-shooter').onclick=()=>show('shooter');$('mode-battle').onclick=startBattle;$('home').onclick=()=>show('home');$('mode-back').onclick=()=>show('home');renderExplore();show('home');
+    $('mode-explore').onclick=()=>show('explore');$('mode-train').onclick=startTrain;$('mode-quiz').onclick=startQuiz;$('mode-shooter').onclick=()=>show('shooter');$('mode-battle').onclick=openBattle;$('home').onclick=()=>show('home');$('mode-back').onclick=()=>show('home');renderExplore();show('home');
   </script>
 </body>
 </html>
