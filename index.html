@@ -203,6 +203,13 @@
   .battle-ready-players b{color:var(--coral);font-size:18px}
   .battle-ready-rules{max-width:500px;margin:0 auto;text-align:left;color:var(--muted);line-height:1.9}
   #battle-start{min-width:180px;background:var(--purple);color:#fff;box-shadow:0 5px 0 #452a91}
+</style><style>
+  .battle-choice-label{display:block;margin:7px 0 5px;text-align:left;color:var(--muted);font-size:12px;font-weight:900}
+  .battle-type-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  .battle-type-grid button{min-height:43px;border:1px solid #dcd7e7;border-radius:12px;background:#fff;color:var(--ink);font-size:15px;font-weight:900;box-shadow:0 3px 0 #e7e2ed}
+  .battle-type-grid button.chosen,.battle-answer-grid button.chosen{border-color:var(--purple);background:#eee8ff;color:var(--purple);box-shadow:0 0 0 2px #7650cf22}
+  .battle-player.two .battle-type-grid button.chosen,.battle-player.two .battle-answer-grid button.chosen{border-color:#ff746d;background:#fff0ed;color:#c7433d;box-shadow:0 0 0 2px #ff746d22}
+  @media(max-width:700px){.battle-choice-label{font-size:10px}.battle-type-grid button{min-height:38px;font-size:12px}}
 </style></head>
 <body>
   <header class="topbar"><button class="brand" id="home"><span class="mark">♪</span><span>音程探險家</span></button><button class="mode-back hidden" id="mode-back">← 模式選擇</button><div class="mission"><span id="mission-label">今天的任務</span><b id="mission-value">認識「度」</b></div></header>
@@ -233,7 +240,7 @@
     const touchInput=matchMedia('(pointer:coarse)').matches||navigator.maxTouchPoints>0;
     let shooterStatus='ready',shooterMode='practice',shooterTime=60,shooterScore=0,shooterPoints=0,shooterPopped=0,shooterMisses=0,shooterCombo=0,shooterBest=0,shooterRound=0,shooterQuestion=null,shooterAnswered=false,shooterTick=null,shooterNextTimer=null,shooterAnimation=null,shooterBoard=[],shooterTypes=[],shooterShots=0,shooterPhase=0,shooterAimAngle=-Math.PI/2,shooterPointerId=null,shooterFinishReason='';
     let trainDirection='up',trainQuestion=null,trainPicked=[],trainStars=0,trainAnswer=null,trainChecked=false,trainMessage='',trainDragIndex=null,trainDeparting=false,trainFinished=false,trainPlaybackTimers=[],trainPlaybackContexts=[];
-    let battleScore=[0,0],battleQuestions=[null,null],battleMessage=['',''],battleWinner=null,battleTime=60,battleStatus='ready',battleTimer=null;
+    let battleScore=[0,0],battleQuestions=[null,null],battleAnswers=[{type:null,degree:null},{type:null,degree:null}],battleNextHarmony=[false,true],battleMessage=['',''],battleWinner=null,battleTime=60,battleStatus='ready',battleTimer=null;
     function tone(midi,start,duration,ctx,target=ctx.destination){const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.value=440*Math.pow(2,(midi-69)/12);g.gain.setValueAtTime(.0001,start);g.gain.exponentialRampToValueAtTime(.36,start+.025);g.gain.exponentialRampToValueAtTime(.0001,start+duration);o.connect(g).connect(target);o.start(start);o.stop(start+duration+.05)}
     function makeReverb(ctx){const seconds=2.7,length=Math.floor(ctx.sampleRate*seconds),buffer=ctx.createBuffer(2,length,ctx.sampleRate);for(let channel=0;channel<2;channel++){const data=buffer.getChannelData(channel);for(let i=0;i<length;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/length,2.7)}const convolver=ctx.createConvolver();convolver.buffer=buffer;return convolver}
     function closeAudioContext(ctx){if(ctx&&ctx.state!=='closed')ctx.close().catch(()=>{})}
@@ -712,12 +719,14 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
     }
     function resetShooter(){clearShooterTimers();shooterStatus='ready';shooterQuestion=null;shooterAnswered=false}
 
-    function makeBattleQuestion(...excluded){
+    function makeBattleQuestion(player,...excluded){
       let next;
+      const h=battleNextHarmony[player];
+      battleNextHarmony[player]=!h;
       do{
         const a=Math.floor(Math.random()*notes.length),b=Math.floor(Math.random()*notes.length);
-        next={a,b,degree:Math.abs(a-b)+1};
-      }while(excluded.some(q=>q&&next.a===q.a&&next.b===q.b));
+        next={a,b,degree:Math.abs(a-b)+1,h};
+      }while(excluded.some(q=>q&&next.a===q.a&&next.b===q.b&&next.h===q.h));
       return next;
     }
     function clearBattleTimers(){
@@ -726,7 +735,8 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
     }
     function resetBattle(){
       clearBattleTimers();
-      battleScore=[0,0];battleQuestions=[null,null];battleMessage=['',''];
+      battleScore=[0,0];battleQuestions=[null,null];battleAnswers=[{type:null,degree:null},{type:null,degree:null}];battleMessage=['',''];
+      const firstHarmony=Math.random()<.5;battleNextHarmony=[firstHarmony,!firstHarmony];
       battleWinner=null;battleTime=60;battleStatus='ready';
     }
     function openBattle(){
@@ -735,8 +745,8 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
     }
     function startBattle(){
       resetBattle();
-      const firstQuestion=makeBattleQuestion();
-      battleQuestions=[firstQuestion,makeBattleQuestion(firstQuestion)];
+      const firstQuestion=makeBattleQuestion(0);
+      battleQuestions=[firstQuestion,makeBattleQuestion(1,firstQuestion)];
       battleStatus='running';
       show('battle');
       battleTimer=setInterval(()=>{
@@ -758,7 +768,7 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
     }
     function renderBattle(){
       if(battleStatus==='ready'){
-        $('battle-view').innerHTML=`<div class="battle-finish battle-ready"><span class="tag">TWO PLAYER BATTLE</span><h2>🎵 雙人音程對戰</h2><p>兩位玩家都準備好後再開始。按下按鈕才會出現題目並開始 60 秒倒數。</p><div class="battle-ready-players"><span>🟣 玩家一</span><b>VS</b><span>🟠 玩家二</span></div><ul class="battle-ready-rules"><li>兩邊各自回答自己的題目</li><li>答對立即加 1 分並換下一題</li><li>時間到時，答對題數最多的人獲勝</li></ul><div class="battle-actions"><button class="back" id="battle-home">返回模式選擇</button><button class="restart" id="battle-start">開始比賽</button></div></div>`;
+        $('battle-view').innerHTML=`<div class="battle-finish battle-ready"><span class="tag">TWO PLAYER BATTLE</span><h2>🎵 雙人音程對戰</h2><p>兩位玩家都準備好後再開始。按下按鈕才會出現題目並開始 60 秒倒數。</p><div class="battle-ready-players"><span>🟣 玩家一</span><b>VS</b><span>🟠 玩家二</span></div><ul class="battle-ready-rules"><li>兩邊各自回答自己的題目</li><li>每題都要判斷曲調／和聲與音程度數</li><li>兩項都答對才加 1 分並換下一題</li><li>時間到時，答對題數最多的人獲勝</li></ul><div class="battle-actions"><button class="back" id="battle-home">返回模式選擇</button><button class="restart" id="battle-start">開始比賽</button></div></div>`;
         $('battle-home').onclick=()=>show('home');
         $('battle-start').onclick=startBattle;
         return;
@@ -771,31 +781,42 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
         return;
       }
       const playerPanel=p=>{
-        const q=battleQuestions[p]||(battleQuestions[p]=makeBattleQuestion());
-        const side=p===0?'one':'two',name=p===0?'玩家一':'玩家二';
-        const buttons=[1,2,3,4,5,6,7,8].map(d=>`<button data-player="${p}" data-degree="${d}">${d} 度</button>`).join('');
+        const q=battleQuestions[p]||(battleQuestions[p]=makeBattleQuestion(p));
+        const answer=battleAnswers[p],side=p===0?'one':'two',name=p===0?'玩家一':'玩家二';
+        const typeButtons=[['melody','曲調音程'],['harmony','和聲音程']].map(item=>`<button data-player="${p}" data-answer-type="${item[0]}" class="${answer.type===item[0]?'chosen':''}">${item[1]}</button>`).join('');
+        const degreeButtons=[1,2,3,4,5,6,7,8].map(d=>`<button data-player="${p}" data-answer-degree="${d}" class="${answer.degree===d?'chosen':''}">${d} 度</button>`).join('');
         const message=battleMessage[p],messageClass=message.includes('答對')?'good':message?'bad':'';
-        return `<section class="battle-player ${side}" id="battle-player-${p}"><div class="battle-player-head"><span class="battle-player-name">${p===0?'🟣':'🟠'} ${name}</span><span class="battle-score"><b>${battleScore[p]}</b> 題</span></div><div class="battle-question">${notes[q.a].name} → ${notes[q.b].name}<small>這是你的題目，答對會立刻換下一題</small></div><div class="battle-staff">${staff(notes[q.a],notes[q.b],false,true)}</div><button class="battle-listen" data-listen="${p}">▶ 播放題目</button><div class="battle-answer-grid">${buttons}</div><p class="battle-message ${messageClass}" aria-live="polite">${message||'請選擇音程度數'}</p></section>`;
+        return `<section class="battle-player ${side}" id="battle-player-${p}"><div class="battle-player-head"><span class="battle-player-name">${p===0?'🟣':'🟠'} ${name}</span><span class="battle-score"><b>${battleScore[p]}</b> 題</span></div><div class="battle-question">判斷排列方式與音程度數<small>兩個答案都正確才會換下一題</small></div><div class="battle-staff">${staff(notes[q.a],notes[q.b],q.h,true)}</div><button class="battle-listen" data-listen="${p}">▶ 播放題目</button><span class="battle-choice-label">① 曲調還是和聲？</span><div class="battle-type-grid">${typeButtons}</div><span class="battle-choice-label">② 是幾度音程？</span><div class="battle-answer-grid">${degreeButtons}</div><p class="battle-message ${messageClass}" aria-live="polite">${message||'請完成兩個判斷'}</p></section>`;
       };
-      $('battle-view').innerHTML=`<div class="battle-board"><div class="battle-round"><span class="tag">60 秒計時賽</span><h2>各自答題，答對立即換下一題</h2><div class="battle-clock"><b id="battle-clock">${battleTime}</b><span>秒</span></div></div>${playerPanel(0)}${playerPanel(1)}</div>`;
-      $('battle-view').querySelectorAll('[data-degree]').forEach(button=>button.onclick=()=>answerBattle(+button.dataset.player,+button.dataset.degree));
+      $('battle-view').innerHTML=`<div class="battle-board"><div class="battle-round"><span class="tag">60 秒計時賽</span><h2>判斷曲調／和聲，再算音程度數</h2><div class="battle-clock"><b id="battle-clock">${battleTime}</b><span>秒</span></div></div>${playerPanel(0)}${playerPanel(1)}</div>`;
+      $('battle-view').querySelectorAll('[data-answer-type]').forEach(button=>button.onclick=()=>chooseBattleAnswer(+button.dataset.player,'type',button.dataset.answerType));
+      $('battle-view').querySelectorAll('[data-answer-degree]').forEach(button=>button.onclick=()=>chooseBattleAnswer(+button.dataset.player,'degree',+button.dataset.answerDegree));
       $('battle-view').querySelectorAll('[data-listen]').forEach(button=>button.onclick=()=>{
         const p=+button.dataset.listen,q=battleQuestions[p];
-        play(notes[q.a],notes[q.b],false,`#battle-player-${p}`);
+        play(notes[q.a],notes[q.b],q.h,`#battle-player-${p}`);
       });
     }
-    function answerBattle(player,degree){
+    function chooseBattleAnswer(player,kind,value){
       if(activeMode!=='battle'||battleStatus!=='running')return;
-      const q=battleQuestions[player];
-      if(degree!==q.degree){
-        battleMessage[player]='還不對，再算一次！';
+      const q=battleQuestions[player],answer=battleAnswers[player];
+      answer[kind]=value;
+      if(answer.type===null||answer.degree===null){
+        battleMessage[player]='再完成另一個判斷';
+        renderBattle();
+        return;
+      }
+      const correct=answer.degree===q.degree&&answer.type===(q.h?'harmony':'melody');
+      if(!correct){
+        battleMessage[player]='兩個答案中有不正確的，再試一次！';
+        battleAnswers[player]={type:null,degree:null};
         playQuizFeedback(false);
         renderBattle();
         return;
       }
       battleScore[player]++;
-      battleMessage[player]='答對了！下一題';
-      battleQuestions[player]=makeBattleQuestion(q,battleQuestions[1-player]);
+      battleMessage[player]='兩個判斷都答對了！下一題';
+      battleQuestions[player]=makeBattleQuestion(player,q,battleQuestions[1-player]);
+      battleAnswers[player]={type:null,degree:null};
       playQuizFeedback(true);
       renderBattle();
     }
