@@ -493,7 +493,7 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
       for(let sample=0;sample<=240;sample++){
         const angle=-Math.PI+.2+sample*(Math.PI-.4)/240;
         const trace=traceShooterShot(angle,metrics,false,points);
-        if(trace.hit&&!trace.hit.gray)hitCounts.set(trace.hit.note,(hitCounts.get(trace.hit.note)||0)+1);
+        if(trace.hit&&!trace.hit.gray&&findShooterLanding(trace.hit,trace.x,trace.y,metrics))hitCounts.set(trace.hit.note,(hitCounts.get(trace.hit.note)||0)+1);
       }
       return new Set([...hitCounts].filter(([,count])=>count>=3).map(([note])=>note));
     }
@@ -552,8 +552,8 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
         return;
       }
       if(shooterStatus==='finished'){
-        $('shooter-view').innerHTML='<div class="card shooter-panel"><div class="shooter-finished"><span class="tag">CHALLENGE COMPLETE</span><h2>挑戰完成！</h2><p class="shooter-final-score">'+shooterPoints+'<small> 分</small></p><p>'+shooterFinishReason+'<br>答對 '+shooterScore+' 題、消除 '+shooterPopped+' 顆，最高連擊 '+shooterBest+'×。</p><div class="shooter-actions"><button class="secondary" id="shooter-back">回自由探索</button><button class="primary" id="shooter-restart">再挑戰一次</button></div></div></div>';
-        $('shooter-back').onclick=()=>show('explore');$('shooter-restart').onclick=()=>startShooter(shooterMode);
+        $('shooter-view').innerHTML='<div class="card shooter-panel"><div class="shooter-finished"><span class="tag">CHALLENGE COMPLETE</span><h2>挑戰完成！</h2><p class="shooter-final-score">'+shooterPoints+'<small> 分</small></p><p>'+shooterFinishReason+'<br>答對 '+shooterScore+' 題、消除 '+shooterPopped+' 顆，最高連擊 '+shooterBest+'×。</p><div class="shooter-actions"><button class="secondary" id="shooter-back">返回模式選擇</button><button class="primary" id="shooter-restart">再挑戰一次</button></div></div></div>';
+        $('shooter-back').onclick=()=>show('home');$('shooter-restart').onclick=()=>startShooter(shooterMode);
         return;
       }
       $('shooter-view').innerHTML='<div class="card shooter-panel"><div class="shooter-top"><div><span class="tag">BUBBLE INTERVAL</span><h2>音程泡泡龍</h2></div><div class="shooter-device"><i class="device-dot"></i>'+device+'</div></div><div class="shooter-hud"><div class="hud-item"><span>'+(shooterMode==='timed'?'剩餘時間':'失誤次數')+'</span><b id="shooter-limit"></b></div><div class="hud-item"><span>答對</span><b id="shooter-score"></b></div><div class="hud-item"><span>消除</span><b id="shooter-popped"></b></div><div class="hud-item"><span>得分</span><b id="shooter-points"></b></div><div class="hud-item"><span>COMBO</span><b id="shooter-combo"></b></div></div><div class="shooter-prompt" id="shooter-question" aria-live="polite"></div><div class="shooter-arena" id="shooter-arena" aria-label="泡泡龍棋盤，拖曳瞄準後放開發射"><div class="arena-stars"></div><div class="bubble-danger"></div><svg class="bubble-aim" aria-hidden="true"><polyline id="aim-path"></polyline><circle id="aim-impact"></circle></svg><div class="bubble-grid" id="bubble-grid"></div><div class="shooter-cannon"></div><div class="bubble-instruction">虛線停住處＝第一個碰到的泡泡</div><div id="shooter-feedback"></div></div><div class="shooter-controls"><span id="shooter-board-summary"></span><button id="shooter-switch" type="button">'+(shooterMode==='timed'?'切換到一般練習':'切換到進階挑戰')+'</button><button id="shooter-fire" type="button">發射泡泡</button></div></div>';
@@ -635,8 +635,21 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
       shooterAnimation=requestAnimationFrame(frame);
     }
     function findShooterLanding(hit,x,y,metrics){
-      let spots=hit?shooterNeighbors(hit.r,hit.c):Array.from({length:SHOOTER_COLS},(_,c)=>({r:0,c}));
-      spots=spots.filter(cell=>cell.r>=0&&cell.r<12&&!shooterAt(cell.r,cell.c));
+      if(!hit){
+        const ceiling=Array.from({length:SHOOTER_COLS},(_,c)=>({r:0,c})).filter(cell=>!shooterAt(cell.r,cell.c));
+        ceiling.sort((a,b)=>Math.abs(shooterPoint(a.r,a.c,metrics).x-x)-Math.abs(shooterPoint(b.r,b.c,metrics).x-x));
+        return ceiling[0]||null;
+      }
+      const direct=shooterNeighbors(hit.r,hit.c).filter(cell=>cell.r<12&&!shooterAt(cell.r,cell.c));
+      const frontier=[];
+      shooterBoard.forEach(cell=>frontier.push(...shooterNeighbors(cell.r,cell.c)));
+      const nearby=new Map();
+      [...direct,...frontier].forEach(cell=>{
+        if(cell.r<0||cell.r>=12||shooterAt(cell.r,cell.c))return;
+        const point=shooterPoint(cell.r,cell.c,metrics);
+        if(Math.hypot(point.x-x,point.y-y)<=metrics.cell*1.1)nearby.set(shooterKey(cell),cell);
+      });
+      const spots=[...nearby.values()];
       spots.sort((a,b)=>{
         const pointA=shooterPoint(a.r,a.c,metrics),pointB=shooterPoint(b.r,b.c,metrics);
         return Math.hypot(pointA.x-x,pointA.y-y)-Math.hypot(pointB.x-x,pointB.y-y);
