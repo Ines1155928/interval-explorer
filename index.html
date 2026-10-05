@@ -459,7 +459,7 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
     function shooterNeighbors(r,c){
       const offset=(r+shooterPhase)%2;
       const adjacent=[[r,c-1],[r,c+1],[r-1,c+(offset?0:-1)],[r-1,c+(offset?1:0)],[r+1,c+(offset?0:-1)],[r+1,c+(offset?1:0)]];
-      return adjacent.filter(([row,col])=>row>=0&&col>=0&&col<SHOOTER_COLS).map(([row,col])=>({r:row,c:col}));
+      return adjacent.filter(([row])=>row>=0).map(([row,col])=>({r:row,c:col}));
     }
     function shooterMetrics(){
       const arena=$('shooter-arena'),width=arena.clientWidth,height=arena.clientHeight;
@@ -647,6 +647,7 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
       [...direct,...frontier].forEach(cell=>{
         if(cell.r<0||cell.r>=12||shooterAt(cell.r,cell.c))return;
         const point=shooterPoint(cell.r,cell.c,metrics);
+        if(point.x<metrics.radius||point.x>metrics.width-metrics.radius)return;
         if(Math.hypot(point.x-x,point.y-y)<=metrics.cell*1.1)nearby.set(shooterKey(cell),cell);
       });
       const spots=[...nearby.values()];
