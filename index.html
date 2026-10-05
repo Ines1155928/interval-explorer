@@ -546,7 +546,7 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
     function renderShooter(){
       const device=touchInput?'拖曳手指瞄準，放開發射':'滑鼠瞄準並點擊，或方向鍵／空白鍵';
       if(shooterStatus==='ready'){
-        $('shooter-view').innerHTML='<div class="card shooter-panel"><div class="shooter-ready"><div class="shooter-ready-icon">🫧</div><span class="tag">BUBBLE INTERVAL</span><h2>音程泡泡龍</h2><p>自由瞄準，泡泡碰牆會反彈。虛線與光圈會標出先碰到的泡泡；空隙不夠寬時，發射泡泡無法穿過。答對後泡泡會黏在棋盤上，只有相鄰三顆同唱名才消除；射錯會留下灰色障礙。</p><div class="shooter-mode-actions"><button class="primary shooter-start" id="start-shooter-practice">一般練習 · 錯 3 次結束</button><button class="secondary" id="start-shooter-timed">進階挑戰 · 60 秒</button></div><div class="shooter-help"><span>'+device+'</span><span>每 3 發天花板下降</span><span>消除與連鎖有額外分數</span></div></div></div>';
+        $('shooter-view').innerHTML='<div class="card shooter-panel"><div class="shooter-ready"><div class="shooter-ready-icon">🫧</div><span class="tag">BUBBLE INTERVAL</span><h2>音程泡泡龍</h2><p>自由瞄準，泡泡碰牆會反彈。虛線與光圈會標出先碰到的泡泡；空隙不夠寬時，發射泡泡無法穿過。答對後泡泡會黏在棋盤上，只有相鄰三顆同唱名才消除；射錯會留下灰色障礙。</p><div class="shooter-mode-actions"><button class="primary shooter-start" id="start-shooter-practice">一般練習 · 錯 3 次結束</button><button class="secondary" id="start-shooter-timed">進階挑戰 · 60 秒</button></div><div class="shooter-help"><span>'+device+'</span><span>一般練習：固定棋盤，清空即可過關</span><span>進階挑戰：每 3 發天花板下降</span><span>消除與連鎖有額外分數</span></div></div></div>';
         $('start-shooter-practice').onclick=()=>startShooter('practice');
         $('start-shooter-timed').onclick=()=>startShooter('timed');
         return;
@@ -592,9 +592,13 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
     }
     function newShooterRound(){
       if(shooterStatus!=='running')return;
-      if(!shooterBoard.some(cell=>!cell.gray))addShooterRow();
+      if(!shooterBoard.some(cell=>!cell.gray)){
+        if(shooterMode==='practice'){shooterBoard=[];finishShooter('太棒了！全部泡泡都消除了！');return}
+        addShooterRow();
+      }
       shooterQuestion=makeShooterQuestion();
       if(!shooterQuestion){
+        if(shooterMode==='practice'){finishShooter('這盤已沒有可射擊的唱名。可以再挑戰一次！');return}
         for(let attempt=0;attempt<6&&!shooterQuestion;attempt++){
           initialShooterBoard();renderShooterBoard();shooterQuestion=makeShooterQuestion();
         }
@@ -728,7 +732,7 @@ function startQuiz(){quizPlan=makeQuizPlan();quizQuestionIndex=0;question=newQue
         if(shooterMode==='practice'&&shooterMisses>=3){finishShooter('已經失誤 3 次，練習結束。');return}
         if(shooterMode==='timed'&&shooterTime<=0){finishShooter('60 秒到了，挑戰結束。');return}
         if(shooterReachedBottom()){finishShooter('泡泡碰到下方警戒線，挑戰結束。');return}
-        if(shooterShots%3===0)addShooterRow();
+        if(shooterMode==='timed'&&shooterShots%3===0)addShooterRow();
         if(shooterReachedBottom()){finishShooter('天花板下降後，泡泡碰到警戒線。');return}
         newShooterRound();
       },1250);
