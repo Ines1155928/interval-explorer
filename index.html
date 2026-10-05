@@ -212,7 +212,7 @@
   @media(max-width:700px){.battle-choice-label{font-size:10px}.battle-type-grid button{min-height:38px;font-size:12px}}
 </style><style>
   .staff.melodic-second:after{content:"曲調二度 · 先後分開";position:absolute;left:51%;top:14px;transform:translateX(-50%);padding:4px 10px;border-radius:99px;background:#eee8ff;color:#6042aa;font-size:10px;font-weight:900}
-</style></head>
+</style><style>.harmony-staff.harmonic-unison:after{content:"左右緊鄰"}</style></head>
 <body>
   <header class="topbar"><button class="brand" id="home"><span class="mark">♪</span><span>音程探險家</span></button><button class="mode-back hidden" id="mode-back">← 模式選擇</button><div class="mission"><span id="mission-label">今天的任務</span><b id="mission-value">認識「度」</b></div></header>
   
@@ -253,13 +253,13 @@
     function playOne(note){try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;const c=new C;if(c.state==='suspended')c.resume();const n=c.currentTime+.04;tone(note.midi,n,.5,c);if(activeMode==='train')trainPlaybackContexts.push(c);setTimeout(()=>closeAudioContext(c),800);return c}catch(e){}}
     function staff(a,b,h,labels){
       let lines='';for(let i=0;i<5;i++)lines+=`<span class="staff-line" style="bottom:${38+i*14}px"></span>`;
-      const pitchSecond=Math.abs(a.step-b.step)===1,isHarmonicSecond=h&&pitchSecond;
-      const ax=h?(isHarmonicSecond?(a.step<b.step?'calc(50% - 17px)':'calc(50% + 17px)'):'51%'):(pitchSecond?'37%':'46%');
-      const bx=h?(isHarmonicSecond?(b.step<a.step?'calc(50% - 17px)':'calc(50% + 17px)'):'51%'):(pitchSecond?'65%':'58%');
+      const pitchUnison=a.step===b.step,pitchSecond=Math.abs(a.step-b.step)===1,isHarmonicSecond=h&&pitchSecond;
+      const ax=h?(pitchUnison?'calc(50% - 16px)':isHarmonicSecond?(a.step<b.step?'calc(50% - 17px)':'calc(50% + 17px)'):'51%'):((pitchUnison||pitchSecond)?'37%':'46%');
+      const bx=h?(pitchUnison?'calc(50% + 16px)':isHarmonicSecond?(b.step<a.step?'calc(50% - 17px)':'calc(50% + 17px)'):'51%'):((pitchUnison||pitchSecond)?'65%':'58%');
       const aSide=isHarmonicSecond&&a.step>b.step?'label-right':'label-left',bSide=isHarmonicSecond&&b.step<a.step?'label-left':'label-right';
       const one=`<span class="staff-note one ${aSide} ${a.step===-2?'ledger':''}" style="left:${ax};bottom:${38+a.step*7}px"><i></i>${labels?`<b>${a.name}</b>`:''}</span>`;
       const two=`<span class="staff-note two ${bSide} ${b.step===-2?'ledger':''}" style="left:${bx};bottom:${38+b.step*7}px"><i></i>${labels?`<b>${b.name}</b>`:''}</span>`;
-      const secondClass=pitchSecond?(h?'harmonic-second':'melodic-second'):'';
+      const secondClass=pitchUnison?(h?'harmonic-unison':'melodic-unison'):pitchSecond?(h?'harmonic-second':'melodic-second'):'';
       return `<div class="staff ${h?'harmony-staff':''} ${secondClass}"><div class="clef">𝄞</div>${lines}${one}${two}${h?'':'<span class="arrow">→</span>'}</div>`;
     }
     function noteButtons(target,selected,kind,handler){$(target).innerHTML=notes.map((n,i)=>`<button class="${i===selected?'picked '+kind:''}" data-i="${i}" aria-pressed="${i===selected}"><b>${n.name}</b><small>${n.letter}</small></button>`).join('');$(target).querySelectorAll('button').forEach(b=>b.onclick=()=>handler(+b.dataset.i))}
